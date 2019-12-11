@@ -3,20 +3,13 @@ var db = firebase.firestore();
 function writeDataMerge(collection, doc, data) {
   db.collection(collection)
     .doc(doc)
-    .set(
-      {
-        data
-      },
-      { merge: true }
-    );
+    .set(data, { merge: true });
 }
 
 function writeDataOverWrite(collection, doc, data) {
   db.collection(collection)
     .doc(doc)
-    .set({
-      data
-    });
+    .set(data);
 }
 
 function listenToData(collection, doc, functionToExecute) {
