@@ -39,20 +39,22 @@ function setPrompt(gameID, roundID, prompt) {
 }
 
 // Function for counting down from 40 seconds
-function countDown() {
+function countDown(gameID) {
   let timeHolder = 40;
   var counter = setInterval(function() {
     timeHolder--;
-    if (timeHolder < 0) {
+    writeDataMerge(gameID, "logistics", { timeHolder: timeHolder });
+    if (timeHolder < 1) {
       clearInterval(counter);
     }
   }, 1000);
 }
 
 function runRoundAsJudge(gameID, roundID) {
-  setPrompt();
+  countDown(gameID);
+  // setPrompt();
 
   //
 }
 
-runRoundAsJudge();
+runRoundAsJudge("gameXYZ", "round3");
