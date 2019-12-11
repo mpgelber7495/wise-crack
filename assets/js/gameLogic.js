@@ -26,3 +26,22 @@ function listenToData(collection, doc, functionToExecute) {
       functionToExecute;
     });
 }
+
+// ------------------------------------------------
+// TO-DO: Function for running game as judge
+// ------------------------------------------------
+
+//Function for setting the prompt in the database
+function setPrompt(gameID, roundID, prompt) {
+  db.collection(gameID)
+    .doc(roundID)
+    .set({ prompt: prompt });
+}
+
+function runRoundAsJudge(gameID, roundID) {
+  setPrompt();
+
+  //
+}
+
+runRoundAsJudge();
