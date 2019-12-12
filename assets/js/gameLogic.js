@@ -47,11 +47,17 @@ console.log(gameID);
 // TO-DO: Function for running game as judge
 // ------------------------------------------------
 
+function runRoundAsJudge(gameID, roundID) {
+  countDown(gameID);
+  // setPrompt();
+
+  // Define the number of players as a variable
+}
 // Function for setting the prompt in the database
 function setPrompt(gameID, roundID, prompt) {
-  db.collection(gameID)
-    .doc(roundID)
-    .set({ prompt: prompt });
+  let data = {};
+  data["prompt"] = prompt;
+  writeDataMerge(gameID, roundID, data);
 }
 
 // Function for counting down from 40 seconds
@@ -62,15 +68,11 @@ function countDown(gameID) {
     writeDataMerge(gameID, "logistics", { timeHolder: timeHolder });
     if (timeHolder < 1) {
       clearInterval(counter);
+      displayCardsToJudge(roundID);
     }
   }, 1000);
 }
 
-function runRoundAsJudge(gameID, roundID) {
-  countDown(gameID);
-  // setPrompt();
-
-  //
-}
+function displayCardsToJudge(roundID) {}
 
 runRoundAsJudge("gameXYZ", "round3");
