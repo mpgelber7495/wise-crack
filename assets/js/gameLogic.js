@@ -69,6 +69,7 @@ function runRoundAsJudge(roundID) {
 function setPrompt(roundID, prompt) {
   let data = {};
   data["prompt"] = prompt;
+  writeDataMerge(gameID, roundID, data);
 }
 
 // Function for counting down from 40 seconds
@@ -105,7 +106,7 @@ function displayCardsToJudge(roundID) {
       let roundSelectionElement = `<div class = "round-selection-container"> ${selectionPHolder} </div>`;
 
       $(".container").html(roundSelectionElement);
-      // Placing the click listener here because it must occur sequentially
+      // Placing the click listener here because it must occur sequentially once the objects have actually been added to the HTML
       listenForJudgesSelection(roundID);
     });
 }
