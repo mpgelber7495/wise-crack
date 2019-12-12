@@ -83,6 +83,9 @@ function countDown(roundID) {
       displayCardsToJudge(roundID);
       // Insert function to move all other players to the waiting screen
       // Insert function to listen to the responses and send the judges selection to firebase
+      // Increase the roundCounter by one
+      incrementRoundCounter();
+      // Set the new judge as the winner of previous round
     }
   }, 1000);
 }
@@ -122,6 +125,24 @@ function listenForJudgesSelection(roundID) {
     winnerAnswer["winningResponse"] = event.target.innerText;
     writeDataMerge(gameID, roundID, winnerAnswer);
   });
+}
+
+function incrementRoundCounter() {
+  db.collection(gameID)
+    .doc("logistics")
+    .get()
+    .then(function(doc) {
+      let roundCountHolder = doc.data()["roundCounter"];
+      let roundCount = {};
+      roundCount["roundCounter"] = roundCountHolder + 1;
+      writeDataMerge(gameID, "logistics", roundCount);
+    });
+}
+
+function changeJudge(newJudge) {
+  let judgeData = {};
+  judgeData["judge"] = newJudge;
+  writeDataMerge(gameID, "logistics", judgeData);
 }
 
 runRoundAsJudge("round1");
