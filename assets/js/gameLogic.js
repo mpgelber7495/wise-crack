@@ -103,9 +103,9 @@ function displayCardsToJudge(roundID) {
           console.log("roundEl: " + selectionPHolder);
         }
       }
-      let roundSelectionElement = `<div class = "round-selection-container> ${selectionPHolder} </div>`;
+      let roundSelectionElement = `<div class = "round-selection-container"> ${selectionPHolder} </div>`;
       console.log("FULLROUNDEL: " + roundSelectionElement);
-      $(".container").append(roundSelectionElement);
+      $(".container").html(roundSelectionElement);
     });
 }
 
