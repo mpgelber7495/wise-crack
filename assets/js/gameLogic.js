@@ -81,6 +81,7 @@ function countDown(roundID) {
       clearInterval(counter);
       displayCardsToJudge(roundID);
       // Insert function to move all other players to the waiting screen
+      // Insert function to listen to the responses and send the judges selection to firebase
     }
   }, 1000);
 }
@@ -99,14 +100,27 @@ function displayCardsToJudge(roundID) {
           }</p>`;
 
           selectionPHolder += playerResponseElement;
-          console.log("responseEl: " + playerResponseElement);
-          console.log("roundEl: " + selectionPHolder);
         }
       }
       let roundSelectionElement = `<div class = "round-selection-container"> ${selectionPHolder} </div>`;
-      console.log("FULLROUNDEL: " + roundSelectionElement);
+
       $(".container").html(roundSelectionElement);
+      // Placing the click listener here because it must occur sequentially
+      listenForJudgesSelection(roundID);
     });
+}
+
+function listenForJudgesSelection(roundID) {
+  $(".round-selection-container").click(function(event) {
+    // Write the winning player to firebase
+    let winnerName = {};
+    winnerName["winningPlayer"] = event.target.attributes.value.value;
+    writeDataMerge(gameID, roundID, winnerName);
+    // Write the winning response to firebase
+    let winnerAnswer = {};
+    winnerAnswer["winningResponse"] = event.target.innerText;
+    writeDataMerge(gameID, roundID, winnerAnswer);
+  });
 }
 
 runRoundAsJudge("round1");
