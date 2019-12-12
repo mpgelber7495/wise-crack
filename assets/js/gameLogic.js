@@ -37,42 +37,52 @@ $(".container")[0].innerHTML += `
 </div>`;
 
 // generates random number ID
-var gameID = Math.random()
-  .toString(36)
-  .substr(2, 9);
+// var gameID = Math.random()
+//   .toString(36)
+//   .substr(2, 9);
 
-console.log(gameID);
+// console.log(gameID);
+
+const gameID = "Game123";
 
 // ------------------------------------------------
 // TO-DO: Function for running game as judge
 // ------------------------------------------------
 
-function runRoundAsJudge(gameID, roundID) {
-  countDown(gameID);
+function runRoundAsJudge(roundID) {
+  countDown(roundID);
+
   // setPrompt();
 
   // Define the number of players as a variable
 }
 // Function for setting the prompt in the database
-function setPrompt(gameID, roundID, prompt) {
+function setPrompt(roundID, prompt) {
   let data = {};
   data["prompt"] = prompt;
-  writeDataMerge(gameID, roundID, data);
 }
 
 // Function for counting down from 40 seconds
-function countDown(gameID) {
-  let timeHolder = 40;
+function countDown(roundID) {
+  let timeHolder = 10;
   var counter = setInterval(function() {
     timeHolder--;
     writeDataMerge(gameID, "logistics", { timeHolder: timeHolder });
     if (timeHolder < 1) {
       clearInterval(counter);
       displayCardsToJudge(roundID);
+      // Insert function to move all other players to the waiting screen
     }
   }, 1000);
 }
 
-function displayCardsToJudge(roundID) {}
+function displayCardsToJudge(roundID) {
+  db.collection(gameID)
+    .doc(roundID)
+    .get()
+    .then(function(doc) {
+      console.log(doc.data());
+    });
+}
 
-runRoundAsJudge("gameXYZ", "round3");
+runRoundAsJudge("round1");
