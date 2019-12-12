@@ -73,7 +73,7 @@ function setPrompt(roundID, prompt) {
 
 // Function for counting down from 40 seconds
 function countDown(roundID) {
-  let timeHolder = 5;
+  let timeHolder = 2;
   var counter = setInterval(function() {
     timeHolder--;
     writeDataMerge(gameID, "logistics", { timeHolder: timeHolder });
@@ -90,19 +90,22 @@ function displayCardsToJudge(roundID) {
     .doc(roundID)
     .get()
     .then(function(doc) {
-      let roundSelectionElement = $("<div>");
+      let selectionPHolder = "";
       let roundResponseObject = doc.data();
       for (let i = 0; i < playersArray.length; i++) {
         if (roundResponseObject[playersArray[i]]) {
-          let playerResponseElement = `<p value = ${[playersArray[i]]} > ${
+          let playerResponseElement = `<p value = ${playersArray[i]}> ${
             roundResponseObject[playersArray[i]]
-          } </p>`;
-          roundSelectionElement.append(playerResponseElement);
+          }</p>`;
+
+          selectionPHolder += playerResponseElement;
           console.log("responseEl: " + playerResponseElement);
-          console.log("roundEl: " + playerResponseElement);
+          console.log("roundEl: " + selectionPHolder);
         }
       }
-      $("#container").append(roundSelectionElement);
+      let roundSelectionElement = `<div class = "round-selection-container> ${selectionPHolder} </div>`;
+      console.log("FULLROUNDEL: " + roundSelectionElement);
+      $(".container").append(roundSelectionElement);
     });
 }
 
