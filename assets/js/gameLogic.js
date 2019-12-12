@@ -43,11 +43,20 @@ $(".container")[0].innerHTML += `
 
 // console.log(gameID);
 
-const gameID = "Game123";
-
 // ------------------------------------------------
 // TO-DO: Function for running game as judge
 // ------------------------------------------------
+
+// Using stagnant gameID for development
+const gameID = "Game123";
+
+// Setting an array equal to the players who have signed up via path gameID >> Logistics >> players
+let playersArray = [];
+db.collection(gameID)
+  .doc("logistics")
+  .onSnapshot(function(doc) {
+    playersArray = doc.data()["players"];
+  });
 
 function runRoundAsJudge(roundID) {
   countDown(roundID);
@@ -64,7 +73,7 @@ function setPrompt(roundID, prompt) {
 
 // Function for counting down from 40 seconds
 function countDown(roundID) {
-  let timeHolder = 10;
+  let timeHolder = 5;
   var counter = setInterval(function() {
     timeHolder--;
     writeDataMerge(gameID, "logistics", { timeHolder: timeHolder });
@@ -81,7 +90,19 @@ function displayCardsToJudge(roundID) {
     .doc(roundID)
     .get()
     .then(function(doc) {
-      console.log(doc.data());
+      let roundSelectionElement = $("<div>");
+      let roundResponseObject = doc.data();
+      for (let i = 0; i < playersArray.length; i++) {
+        if (roundResponseObject[playersArray[i]]) {
+          let playerResponseElement = `<p value = ${[playersArray[i]]} > ${
+            roundResponseObject[playersArray[i]]
+          } </p>`;
+          roundSelectionElement.append(playerResponseElement);
+          console.log("responseEl: " + playerResponseElement);
+          console.log("roundEl: " + playerResponseElement);
+        }
+      }
+      $("#container").append(roundSelectionElement);
     });
 }
 
