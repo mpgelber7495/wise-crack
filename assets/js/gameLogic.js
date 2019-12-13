@@ -41,7 +41,7 @@ $(".container")[0].innerHTML += `
 //   .toString(36)
 //   .substr(2, 9);
 
-console.log(gameID);
+// console.log(gameID);
 
 
 
