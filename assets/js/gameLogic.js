@@ -61,6 +61,8 @@ function instantiateRound() {
           .set(data);
         runRoundAsJudge(newRoundID);
       } else {
+        let roundCount = doc.data()["roundCounter"] + 1;
+        let newRoundID = "round" + roundCount;
         runGameAsPlayer(nickname, newRoundID);
       }
     });
