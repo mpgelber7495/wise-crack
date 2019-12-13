@@ -78,76 +78,82 @@ $(".container").on("click", ".join-game-btn", function(event) {
 </form>`;
 });
 
-// ready join button logic
+// ready join button logic (PERSON WHO JOINES GAME)
 $(".container").on("click", ".ready-btn-join", function(event) {
   event.preventDefault();
   inputGameID = $("#gameIDInput")
     .val()
     .trim();
   console.log(inputGameID);
-  if (
-    $("#nicknameInput")
-      .val()
-      .trim() !== "" &&
-    $("#gameIDInput")
-      .val()
-      .trim() !== ""
-  ) {
-    db.collection(`${inputGameID}`)
+  let nicknameInput = $("#nicknameInput")
+    .val()
+    .trim();
+  if (nicknameInput && inputGameID !== "") {
+    db.collection(inputGameID)
       .doc("logistics")
       .onSnapshot(function(doc) {
         if (doc.data().roundCounter === 1) {
-          renderWaitScreen();
+          pushPlayersToDB(inputGameID, nicknameInput);
+          renderPlayerWaitScreen(inputGameID);
         }
       });
   }
 });
 
-// create-join button logic
+// create-join button logic (PLAYER WHO CREATES GAME AND BECOMES JUDGE)
 $(".container").on("click", ".ready-btn-create", function(event) {
   event.preventDefault();
   let nicknameInput = $("#nicknameInput")
     .val()
     .trim();
   if (nicknameInput !== "") {
-    let data = {};
-    data["judge"] = nicknameInput;
-    writeDataMerge(gameID, "logistics", data);
-    let playerData;
-    db.collection(gameID)
-      .doc("logistics")
-      .onSnapshot(function(doc) {
-        playerData = doc.data().players;
-
-        // writeDataMerge(gameID, "logistics", data);
-      });
-    playerData.push(nicknameInput);
-    renderWaitScreen();
+    let pushJudgeData = {};
+    pushJudgeData["judge"] = nicknameInput;
+    writeDataMerge(gameID, "logistics", pushJudgeData);
+    pushPlayersToDB(gameID, nicknameInput);
+    renderJudgeWaitScreen(gameID);
   }
 });
 
-//Wait Screen Function
-function renderWaitScreen() {
-  $(".container").html("");
-  db.collection(`${inputGameID}`)
+//function that pushes player to DB
+function pushPlayersToDB(gameID, nicknameInput) {
+  let playerData;
+  db.collection(gameID)
     .doc("logistics")
     .onSnapshot(function(doc) {
-      var players = doc.data().players;
-      $(
-        ".container"
-      )[0].innerHTML += `<h5> Waiting for other players to join the game....</h5>`;
-      for (var i = 0; i < players.length; i++) {
-        $(".container").append(`<li>${players[i]}</li>`);
-      }
+      let pushPlayerData = {};
+      playerData = doc.data().players;
+      playerData.push(nicknameInput);
+      pushPlayerData["players"] = playerData;
+      console.log(pushPlayerData);
+      writeDataMerge(gameID, "logistics", pushPlayerData);
+      writeDataMerge = function() {};
     });
 }
 
-//   allPlayers.push($(“#nicknameInput”).val());
-//   let game = $(“gameIDInput”).val();
-//   addNewPlayers(allPlayers, game);
-// });
-// function addNewPlayers (allPlayers, game) {
-//   allPlayers.forEach (function (player) {
-//     db.collection(“Game123”).doc(“logistics”).update({players: firebase.firestore.FieldValue.arrayUnion(player)})
-//   })
-// }
+//Wait Screen Function
+function renderPlayerWaitScreen(inputGameID) {
+  $(".container").html("");
+  let players;
+  db.collection(inputGameID)
+    .doc("logistics")
+    .onSnapshot(function(doc) {
+      players = doc.data().players;
+      $(".container").html(
+        `<h5> Waiting for other players to join the game....</h5><p>${players}</p>`
+      );
+    });
+}
+
+function renderJudgeWaitScreen(inputGameID) {
+  $(".container").html("");
+  let players;
+  db.collection(inputGameID)
+    .doc("logistics")
+    .onSnapshot(function(doc) {
+      players = doc.data().players;
+      $(".container").html(
+        `<h5> Waiting for other players to join the game....</h5><p>${players}</p><button type="submit" class="btn btn-primary start-btnn">Start Game</button>`
+      );
+    });
+}
