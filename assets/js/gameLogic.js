@@ -82,16 +82,8 @@ function player(nickname, time, question) {
 //API using Card cast, find a deck code and input below https://www.cardcastgame.com/browse?nsfw=1
 
 var deckId = "8BQAD";
-var cardsArray;
 
 var queryURL = "https://api.cardcastgame.com/v1/decks/" + deckId + "/cards";
-$.ajax({
-  url: queryURL,
-  method: "GET"
-}).then(function(response) {
-  cardsArray = response.calls;
-  console.log(cardsArray);
-});
 
 // console.log(gameID);
 
@@ -112,15 +104,22 @@ db.collection(gameID)
 
 function runRoundAsJudge(roundID) {
   countDown(roundID);
-
-  var randomCard = cardsArray[Math.floor(Math.random() * cardsArray.length)];
-  // setPrompt();
+  setRandomPrompt(roundID);
 }
 // Function for setting the prompt in the database
-function setPrompt(roundID, prompt) {
-  let data = {};
-  data["prompt"] = prompt;
-  writeDataMerge(gameID, roundID, data);
+function setRandomPrompt(roundID) {
+  $.ajax({
+    url: queryURL,
+    method: "GET"
+  }).then(function(response) {
+    let cardsArray = response.calls;
+
+    let randomCard =
+      cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"][0];
+    let data = {};
+    data["prompt"] = randomCard;
+    writeDataMerge(gameID, roundID, data);
+  });
 }
 
 // Function for counting down from 40 seconds
