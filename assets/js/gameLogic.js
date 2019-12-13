@@ -52,7 +52,7 @@ function instantiateRound() {
     .then(function(doc) {
       let judge = doc.data()["judge"];
       if (judge === nickname) {
-        let roundCount = doc.data()["roundCounter"] + 2;
+        let roundCount = doc.data()["roundCounter"] + 1;
         let newRoundID = "round" + roundCount;
         let data = {};
         data["winningPlayer"] = "null";
@@ -159,7 +159,7 @@ function setRandomPrompt(roundID) {
 
 // Function for counting down from 40 seconds
 function countDown(roundID) {
-  let timeHolder = 2;
+  let timeHolder = 10;
   var counter = setInterval(function() {
     timeHolder--;
     writeDataMerge(gameID, "logistics", { timeHolder: timeHolder });
