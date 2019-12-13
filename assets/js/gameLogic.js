@@ -239,7 +239,6 @@ function runGameAsPlayer(nickname, roundID) {
 // ------------------------------------------------
 // Using stagnant gameID for development
 
-let gameID = "Game123";
 // Setting an array equal to the players who have signed up via path gameID >> Logistics >> players
 let playersArray = [];
 db.collection(gameID)
