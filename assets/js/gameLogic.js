@@ -6,6 +6,12 @@ function writeDataMerge(collection, doc, data) {
     .set(data, { merge: true });
 }
 
+function writeDataMergeWhipped(collection, doc, data) {
+  db.collection(collection)
+    .doc(doc)
+    .set(data, { merge: true });
+}
+
 function writeDataOverWrite(collection, doc, data) {
   db.collection(collection)
     .doc(doc)
@@ -23,36 +29,157 @@ function listenToData(collection, doc, functionToExecute) {
 // create game and start game button
 
 $(".container")[0].innerHTML += `
-<div class="col-12 mb-4 create-row d-flex justify-content-center">
+<div class="col-12 mt-4 mb-4 create-row d-flex justify-content-center">
   <button type="button" class="btn btn-secondary btn-lg create-game-btn">
     Create New Game
   </button>
 </div>
-
-
 <div class="col-12 join-row d-flex justify-content-center">
   <button type="button" class="btn btn-secondary btn-lg join-game-btn">
     Join Existing Game
   </button>
 </div>`;
-
 // generates random number ID
-// var gameID = Math.random()
-//   .toString(36)
-//   .substr(2, 9);
-// console.log(gameID);
+var gameID;
+var inputGameID;
+let allPlayers = [];
+let playersArray = [];
+let nickname;
 
+// create game button logic
+$(".container").on("click", ".create-game-btn", function(event) {
+  gameID = Math.random()
+    .toString(36)
+    .substr(2, 2);
+  console.log(gameID);
+  $(".container").html("");
+  $(".container")[0].innerHTML += `<form>
+  <p class ="game-id-holder">Game ID: ${gameID}</p>
+  <div class="form-group mt-4 mb-4">
+    <label for="nicknameInput">Choose a Nickname!</label>
+    <input type="text" class="mt-2 form-control" id="nicknameInput" placeholder="Russomp">
+  </div>
+  <button type="submit" class="btn btn-primary ready-btn-create">Ready</button>
+</form>`;
+  db.collection(`${gameID}`)
+    .doc("logistics")
+    .set({
+      judge: null,
+      playerCount: 0,
+      roundCounter: 1,
+      timeHolder: 0,
+      players: [],
+      timeTrigger: false
+    });
+});
+
+// join game button logic
+$(".container").on("click", ".join-game-btn", function(event) {
+  $(".container").html("");
+  $(".container")[0].innerHTML += `<form>
+  <div class="form-group mt-4 mb-4">
+    <label for="nicknameInput">Choose a Nickname!</label>
+    <input type="text" class="mt-2 mb-4 form-control" id="nicknameInput" placeholder="Russomp">
+    <label for="GameIDInput">Enter Game ID</label>
+    <input type="text" class="mt-2 form-control" id="gameIDInput" placeholder="Game ID">
+  </div>
+  <button type="submit" class="btn btn-primary ready-btn-join">Ready</button>
+</form>`;
+});
+
+// ready join button logic (PERSON WHO JOINES GAME)
+$(".container").on("click", ".ready-btn-join", function(event) {
+  event.preventDefault();
+  inputGameID = $("#gameIDInput")
+    .val()
+    .trim();
+  console.log(inputGameID);
+  let nicknameInput = $("#nicknameInput")
+    .val()
+    .trim();
+  nickname = nicknameInput;
+  if (nicknameInput && inputGameID !== "") {
+    db.collection(inputGameID)
+      .doc("logistics")
+      .onSnapshot(function(doc) {
+        if (doc.data().roundCounter === 1) {
+          pushPlayersToDB(inputGameID, nicknameInput);
+          renderPlayerWaitScreen(inputGameID);
+        }
+      });
+  }
+});
+
+// create-join button logic (PLAYER WHO CREATES GAME AND BECOMES JUDGE)
+$(".container").on("click", ".ready-btn-create", function(event) {
+  event.preventDefault();
+  let nicknameInput = $("#nicknameInput")
+    .val()
+    .trim();
+  nickname = nicknameInput;
+  if (nicknameInput !== "") {
+    let pushJudgeData = {};
+    pushJudgeData["judge"] = nicknameInput;
+    writeDataMerge(gameID, "logistics", pushJudgeData);
+    pushPlayersToDB(gameID, nicknameInput);
+    renderJudgeWaitScreen(gameID);
+  }
+});
+
+//function that pushes player to DB
+function pushPlayersToDB(gameID, nicknameInput) {
+  let playerData;
+  db.collection(gameID)
+    .doc("logistics")
+    .onSnapshot(function(doc) {
+      let pushPlayerData = {};
+      playerData = doc.data().players;
+      playerData.push(nicknameInput);
+      pushPlayerData["players"] = playerData;
+      writeDataMergeWhipped(gameID, "logistics", pushPlayerData);
+      writeDataMergeWhipped = function() {};
+    });
+}
+
+//Wait Screen Function
+function renderPlayerWaitScreen(inputGameID) {
+  $(".container").html("");
+  let players;
+  db.collection(inputGameID)
+    .doc("logistics")
+    .onSnapshot(function(doc) {
+      players = doc.data().players;
+      $(".container").html(
+        `<h5> Waiting for other players to join the game....</h5><p>${players}</p>`
+      );
+    });
+}
+
+function renderJudgeWaitScreen(inputGameID) {
+  $(".container").html("");
+  let players;
+  db.collection(inputGameID)
+    .doc("logistics")
+    .onSnapshot(function(doc) {
+      players = doc.data().players;
+      $(".container").html(
+        `<p class ="game-id-holder">Game ID: ${gameID}</p>
+        <h5> Waiting for other players to join the game....</h5><p>${players}</p><button type="submit" class="btn btn-primary start-btnn" onclick="instantiateRound()">Start Game</button>`
+      );
+    });
+}
 // ------------------------------------------------
 // TO-DO: Instantiate Round
 // ------------------------------------------------
 function instantiateRound() {
+  definePlayersArray();
   db.collection(gameID)
     .doc("logistics")
     .get()
     .then(function(doc) {
       let judge = doc.data()["judge"];
       if (judge === nickname) {
-        let roundCount = doc.data()["roundCounter"] + 1;
+        let roundCount = doc.data()["roundCounter"];
         let newRoundID = "round" + roundCount;
         let data = {};
         data["winningPlayer"] = "null";
@@ -61,7 +188,7 @@ function instantiateRound() {
           .set(data);
         runRoundAsJudge(newRoundID);
       } else {
-        let roundCount = doc.data()["roundCounter"] + 1;
+        let roundCount = doc.data()["roundCounter"];
         let newRoundID = "round" + roundCount;
         runGameAsPlayer(nickname, newRoundID);
       }
@@ -81,8 +208,9 @@ function runGameAsPlayer(nickname, roundID) {
     .doc(roundID)
     .onSnapshot(function(doc) {
       prompt = doc.data()["prompt"];
+      gameContainer.append(prompt);
     });
-  gameContainer.append(prompt);
+
   gameContainer.append("<br>");
   const labelAnswer = $(
     '<label for="answer-input">Enter your answer!</label> '
@@ -121,14 +249,14 @@ function runGameAsPlayer(nickname, roundID) {
 // ------------------------------------------------
 // Using stagnant gameID for development
 
-let gameID = "Game123";
 // Setting an array equal to the players who have signed up via path gameID >> Logistics >> players
-let playersArray = [];
-db.collection(gameID)
-  .doc("logistics")
-  .onSnapshot(function(doc) {
-    playersArray = doc.data()["players"];
-  });
+function definePlayersArray() {
+  db.collection(gameID)
+    .doc("logistics")
+    .onSnapshot(function(doc) {
+      playersArray = doc.data()["players"];
+    });
+}
 
 function runRoundAsJudge(roundID) {
   countDown(roundID);
@@ -140,18 +268,26 @@ function setRandomPrompt(roundID) {
   // API using Card cast, find a deck code and input below https://www.cardcastgame.com/browse?nsfw=1
   var deckId = "8BQAD";
   var queryURL = "https://api.cardcastgame.com/v1/decks/" + deckId + "/cards";
-
+  console.log("StEP1");
   $.ajax({
     url: queryURL,
     method: "GET"
   }).then(function(response) {
     let cardsArray = response.calls;
-
     let randomCard =
       cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"][0];
-    let data = {};
-    data["prompt"] = randomCard;
-    writeDataMerge(gameID, roundID, data);
+
+    let cardData = {};
+    cardData["prompt"] = randomCard;
+    console.log("randomCard: " + randomCard);
+    console.log("StEP2");
+    console.log("roundID: " + roundID);
+    console.log("data: " + cardData);
+    console.log("gameID: " + gameID);
+    writeDataMerge(gameID, roundID, cardData);
+    $(".container").html(
+      `<p class = "time-left-judge">Time Remaining: </p><p class = 'judge-prompt'>${randomCard}</p>`
+    );
   });
 }
 
@@ -161,6 +297,7 @@ function countDown(roundID) {
   var counter = setInterval(function() {
     timeHolder--;
     writeDataMerge(gameID, "logistics", { timeHolder: timeHolder });
+    $(".time-left-judge").text("Time Remaining: " + timeHolder);
     if (timeHolder < 1) {
       clearInterval(counter);
       displayCardsToJudge(roundID);
@@ -231,6 +368,3 @@ function changeJudge(newJudge) {
   judgeData["judge"] = newJudge;
   writeDataMerge(gameID, "logistics", judgeData);
 }
-
-let nickname = "paul";
-instantiateRound();
