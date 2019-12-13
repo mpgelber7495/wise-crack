@@ -40,52 +40,55 @@ $(".container")[0].innerHTML += `
 // var gameID = Math.random()
 //   .toString(36)
 //   .substr(2, 9);
+// console.log(gameID);
 
-playerLogic
-console.log(gameID);
-
-//player function
+// ------------------------------------------------
+// TO-DO: Function for player
+// ------------------------------------------------
 
 const collectiondRef = db.collection("Game123");
 
 function player(nickname, time, question) {
-    const gameContainer = $(".container");
-    gameContainer.append(question);
-    gameContainer.append("<br>");
-    const labelAnswer = $('<label for="answer-input">Enter your answer!</label> ');
-    const playerAnswer = $('<input id="answer-input" type="text"/>');
-    const submitAnswer = $('<input type="button" id="submit" value="Submit answer!"/>');
-    const timer = $('<h1 id="timer"></h1>');
-    timer.text(`You have ${time} seconds left`);
-    gameContainer.prepend(timer);
-    gameContainer.append(labelAnswer);
-    gameContainer.append(playerAnswer);
-    gameContainer.append(submitAnswer);
-    submitAnswer.on("click", () => {
-        event.preventDefault();
-        let answer = playerAnswer.val();
-        if(answer === "") { gameContainer.text("No answer"); }
-        //send answer to the firestore
-        ollectiondRef.doc(nickname).set({
-            nickname: answer,
-        })
-            .catch(function (error) {
-                console.error("Error adding document: ", error);
-            });
-        gameContainer.text("We got your answer!");
-    })
+  const gameContainer = $(".container");
+  gameContainer.append(question);
+  gameContainer.append("<br>");
+  const labelAnswer = $(
+    '<label for="answer-input">Enter your answer!</label> '
+  );
+  const playerAnswer = $('<input id="answer-input" type="text"/>');
+  const submitAnswer = $(
+    '<input type="button" id="submit" value="Submit answer!"/>'
+  );
+  const timer = $('<h1 id="timer"></h1>');
+  timer.text(`You have ${time} seconds left`);
+  gameContainer.prepend(timer);
+  gameContainer.append(labelAnswer);
+  gameContainer.append(playerAnswer);
+  gameContainer.append(submitAnswer);
+  submitAnswer.on("click", () => {
+    event.preventDefault();
+    let answer = playerAnswer.val();
+    if (answer === "") {
+      gameContainer.text("No answer");
+    }
+    //send answer to the firestore
+    ollectiondRef
+      .doc(nickname)
+      .set({
+        nickname: answer
+      })
+      .catch(function(error) {
+        console.error("Error adding document: ", error);
+      });
+    gameContainer.text("We got your answer!");
+  });
 }
-
-=======
-// console.log(gameID);
 
 //API using Card cast, find a deck code and input below https://www.cardcastgame.com/browse?nsfw=1
 
 var deckId = "8BQAD";
 
 var queryURL = "https://api.cardcastgame.com/v1/decks/" + deckId + "/cards";
-
-// console.log(gameID);
 
 // ------------------------------------------------
 // TO-DO: Function for running game as judge
