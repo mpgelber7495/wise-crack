@@ -259,8 +259,10 @@ function definePlayersArray() {
 }
 
 function runRoundAsJudge(roundID) {
-  countDown(roundID);
+  debugger;
+
   setRandomPrompt(roundID);
+  countDown(roundID);
 }
 // Function for setting the prompt in the database
 
@@ -279,11 +281,6 @@ function setRandomPrompt(roundID) {
 
     let cardData = {};
     cardData["prompt"] = randomCard;
-    console.log("randomCard: " + randomCard);
-    console.log("StEP2");
-    console.log("roundID: " + roundID);
-    console.log("data: " + cardData);
-    console.log("gameID: " + gameID);
     writeDataMerge(gameID, roundID, cardData);
     $(".container").html(
       `<p class = "time-left-judge">Time Remaining: </p><p class = 'judge-prompt'>${randomCard}</p>`
