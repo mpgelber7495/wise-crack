@@ -39,6 +39,7 @@ $(".container")[0].innerHTML += `
 var gameID;
 var inputGameID;
 let allPlayers = [];
+let playersArray = [];
 let nickname;
 
 // create game button logic
@@ -244,7 +245,6 @@ function runGameAsPlayer(nickname, roundID) {
 
 // Setting an array equal to the players who have signed up via path gameID >> Logistics >> players
 function definePlayersArray() {
-  let playersArray = [];
   db.collection(gameID)
     .doc("logistics")
     .onSnapshot(function(doc) {
