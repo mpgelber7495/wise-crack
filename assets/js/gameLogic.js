@@ -12,20 +12,6 @@ function writeDataMergeWhipped(collection, doc, data) {
     .set(data, { merge: true });
 }
 
-function writeDataOverWrite(collection, doc, data) {
-  db.collection(collection)
-    .doc(doc)
-    .set(data);
-}
-
-function listenToData(collection, doc, functionToExecute) {
-  db.collection(collection)
-    .doc(doc)
-    .onSnapshot(function(doc) {
-      functionToExecute;
-    });
-}
-
 // create game and start game button
 
 $(".container")[0].innerHTML += `
@@ -69,7 +55,7 @@ $(".container").on("click", ".create-game-btn", function(event) {
       roundCounter: 1,
       timeHolder: 0,
       players: [],
-      timeTrigger: false
+      gameStarted: false
     });
 });
 
@@ -142,16 +128,20 @@ function pushPlayersToDB(gameID, nicknameInput) {
 }
 
 //Wait Screen Function
+// FIX BUG - make this hidden once the round has begun
 function renderPlayerWaitScreen(inputGameID) {
   $(".container").html("");
   let players;
   db.collection(inputGameID)
     .doc("logistics")
     .onSnapshot(function(doc) {
-      players = doc.data().players;
-      $(".container").html(
-        `<h5> Waiting for other players to join the game....</h5><p>${players}</p>`
-      );
+      if (doc.data().gameStarted === false) {
+        players = doc.data().players;
+
+        $(".container").html(
+          `<h5> Waiting for other players to join the game....</h5><p>${players}</p>`
+        );
+      }
     });
 }
 
@@ -161,17 +151,20 @@ function renderJudgeWaitScreen(inputGameID) {
   db.collection(inputGameID)
     .doc("logistics")
     .onSnapshot(function(doc) {
-      players = doc.data().players;
-      $(".container").html(
-        `<p class ="game-id-holder">Game ID: ${gameID}</p>
+      if (doc.data().gameStarted === false) {
+        players = doc.data().players;
+        $(".container").html(
+          `<p class ="game-id-holder">Game ID: ${gameID}</p>
         <h5> Waiting for other players to join the game....</h5><p>${players}</p><button type="submit" class="btn btn-primary start-btnn" onclick="instantiateRound()">Start Game</button>`
-      );
+        );
+      }
     });
 }
 // ------------------------------------------------
 // TO-DO: Instantiate Round
 // ------------------------------------------------
 function instantiateRound() {
+  writeDataMerge(gameID, "logistics", { gameStarted: "true" });
   definePlayersArray();
   db.collection(gameID)
     .doc("logistics")
@@ -280,6 +273,7 @@ function setRandomPrompt(roundID) {
     let cardData = {};
     cardData["prompt"] = randomCard;
     writeDataMerge(gameID, roundID, cardData);
+    $(".container").html("");
     $(".container").html(
       `<p class = "judge-countdown-holder"> Time Remaining: </p><p class = 'judge-prompt'>${randomCard}</p>`
     );
