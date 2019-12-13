@@ -130,7 +130,6 @@ function pushPlayersToDB(gameID, nicknameInput) {
       playerData = doc.data().players;
       playerData.push(nicknameInput);
       pushPlayerData["players"] = playerData;
-      console.log(pushPlayerData);
       writeDataMerge(gameID, "logistics", pushPlayerData);
       writeDataMerge = function() {};
     });
@@ -158,22 +157,22 @@ function renderJudgeWaitScreen(inputGameID) {
     .onSnapshot(function(doc) {
       players = doc.data().players;
       $(".container").html(
-        `<h5> Waiting for other players to join the game....</h5><p>${players}</p><button type="submit" class="btn btn-primary start-btnn">Start Game</button>`
+        `<h5> Waiting for other players to join the game....</h5><p>${players}</p><button type="submit" class="btn btn-primary start-btnn" onclick="instantiateRound()">Start Game</button>`
       );
-      $(".start-btn").on("click", instantiateRound());
     });
 }
 // ------------------------------------------------
 // TO-DO: Instantiate Round
 // ------------------------------------------------
 function instantiateRound() {
+  definePlayersArray();
   db.collection(gameID)
     .doc("logistics")
     .get()
     .then(function(doc) {
       let judge = doc.data()["judge"];
       if (judge === nickname) {
-        let roundCount = doc.data()["roundCounter"] + 2;
+        let roundCount = doc.data()["roundCounter"];
         let newRoundID = "round" + roundCount;
         let data = {};
         data["winningPlayer"] = "null";
@@ -182,7 +181,7 @@ function instantiateRound() {
           .set(data);
         runRoundAsJudge(newRoundID);
       } else {
-        let roundCount = doc.data()["roundCounter"] + 1;
+        let roundCount = doc.data()["roundCounter"];
         let newRoundID = "round" + roundCount;
         runGameAsPlayer(nickname, newRoundID);
       }
@@ -244,12 +243,14 @@ function runGameAsPlayer(nickname, roundID) {
 // Using stagnant gameID for development
 
 // Setting an array equal to the players who have signed up via path gameID >> Logistics >> players
-let playersArray = [];
-db.collection(gameID)
-  .doc("logistics")
-  .onSnapshot(function(doc) {
-    playersArray = doc.data()["players"];
-  });
+function definePlayersArray() {
+  let playersArray = [];
+  db.collection(gameID)
+    .doc("logistics")
+    .onSnapshot(function(doc) {
+      playersArray = doc.data()["players"];
+    });
+}
 
 function runRoundAsJudge(roundID) {
   countDown(roundID);
