@@ -40,60 +40,89 @@ $(".container")[0].innerHTML += `
 // var gameID = Math.random()
 //   .toString(36)
 //   .substr(2, 9);
+// console.log(gameID);
 
-playerLogic
-console.log(gameID);
+// ------------------------------------------------
+// TO-DO: Instantiate Round
+// ------------------------------------------------
+function instantiateRound() {
+  db.collection(gameID)
+    .doc("logistics")
+    .get()
+    .then(function(doc) {
+      let judge = doc.data()["judge"];
+      if (judge === nickname) {
+        let roundCount = doc.data()["roundCounter"] + 2;
+        let newRoundID = "round" + roundCount;
+        let data = {};
+        data["winningPlayer"] = "null";
+        db.collection(gameID)
+          .doc(newRoundID)
+          .set(data);
+        runRoundAsJudge(newRoundID);
+      } else {
+        let roundCount = doc.data()["roundCounter"] + 1;
+        let newRoundID = "round" + roundCount;
+        runGameAsPlayer(nickname, newRoundID);
+      }
+    });
+}
 
-//player function
+// ------------------------------------------------
+// TO-DO: Function for player
+// ------------------------------------------------
 
 const collectiondRef = db.collection("Game123");
 
-function player(nickname, time, question) {
-    const gameContainer = $(".container");
-    gameContainer.append(question);
-    gameContainer.append("<br>");
-    const labelAnswer = $('<label for="answer-input">Enter your answer!</label> ');
-    const playerAnswer = $('<input id="answer-input" type="text"/>');
-    const submitAnswer = $('<input type="button" id="submit" value="Submit answer!"/>');
-    const timer = $('<h1 id="timer"></h1>');
-    timer.text(`You have ${time} seconds left`);
-    gameContainer.prepend(timer);
-    gameContainer.append(labelAnswer);
-    gameContainer.append(playerAnswer);
-    gameContainer.append(submitAnswer);
-    submitAnswer.on("click", () => {
-        event.preventDefault();
-        let answer = playerAnswer.val();
-        if(answer === "") { gameContainer.text("No answer"); }
-        //send answer to the firestore
-        ollectiondRef.doc(nickname).set({
-            nickname: answer,
-        })
-            .catch(function (error) {
-                console.error("Error adding document: ", error);
-            });
-        gameContainer.text("We got your answer!");
-    })
+function runGameAsPlayer(nickname, roundID) {
+  const gameContainer = $(".container");
+  let prompt = "";
+  db.collection(gameID)
+    .doc(roundID)
+    .onSnapshot(function(doc) {
+      prompt = doc.data()["prompt"];
+    });
+  gameContainer.append(prompt);
+  gameContainer.append("<br>");
+  const labelAnswer = $(
+    '<label for="answer-input">Enter your answer!</label> '
+  );
+  const playerAnswer = $('<input id="answer-input" type="text"/>');
+  const submitAnswer = $(
+    '<input type="button" id="submit" value="Submit answer!"/>'
+  );
+  const timer = $('<h1 id="timer"></h1>');
+  db.collection(gameID)
+    .doc("logistics")
+    .onSnapshot(function(doc) {
+      var time = doc.data()["timeHolder"];
+      timer.text(`You have ${time} seconds left`);
+      gameContainer.prepend(timer);
+    });
+  gameContainer.append(labelAnswer);
+  gameContainer.append(playerAnswer);
+  gameContainer.append(submitAnswer);
+  submitAnswer.on("click", () => {
+    event.preventDefault();
+    let answer = playerAnswer.val();
+    if (answer === "") {
+      gameContainer.text("No answer");
+    }
+    //send answer to the firestore
+    let data = {};
+    data[nickname] = answer;
+    writeDataMerge(gameID, roundID, data);
+    gameContainer.text("We got your answer!");
+  });
 }
 
-=======
-// console.log(gameID);
-
-//API using Card cast, find a deck code and input below https://www.cardcastgame.com/browse?nsfw=1
-
-var deckId = "8BQAD";
-
-var queryURL = "https://api.cardcastgame.com/v1/decks/" + deckId + "/cards";
-
-// console.log(gameID);
 
 // ------------------------------------------------
 // TO-DO: Function for running game as judge
 // ------------------------------------------------
-
 // Using stagnant gameID for development
-const gameID = "Game123";
 
+let gameID = "Game123";
 // Setting an array equal to the players who have signed up via path gameID >> Logistics >> players
 let playersArray = [];
 db.collection(gameID)
@@ -107,6 +136,12 @@ function runRoundAsJudge(roundID) {
   setRandomPrompt(roundID);
 }
 // Function for setting the prompt in the database
+
+function setRandomPrompt(roundID) {
+  // API using Card cast, find a deck code and input below https://www.cardcastgame.com/browse?nsfw=1
+  var deckId = "8BQAD";
+  var queryURL = "https://api.cardcastgame.com/v1/decks/" + deckId + "/cards";
+
 function setRandomPrompt(roundID) {
   $.ajax({
     url: queryURL,
@@ -199,4 +234,5 @@ function changeJudge(newJudge) {
   writeDataMerge(gameID, "logistics", judgeData);
 }
 
-runRoundAsJudge("round1");
+let nickname = "paul";
+instantiateRound();
