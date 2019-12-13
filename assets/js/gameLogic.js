@@ -48,9 +48,15 @@ $(".container")[0].innerHTML += `
 
 const collectiondRef = db.collection("Game123");
 
-function player(nickname, time, question) {
+function player(nickname, time) {
   const gameContainer = $(".container");
-  gameContainer.append(question);
+  let prompt = "";
+  db.collection(gameID)
+    .doc(roundID)
+    .onSnapshot(function(doc) {
+      prompt = doc.data()["prompt"];
+    });
+  gameContainer.append(prompt);
   gameContainer.append("<br>");
   const labelAnswer = $(
     '<label for="answer-input">Enter your answer!</label> '
@@ -60,6 +66,11 @@ function player(nickname, time, question) {
     '<input type="button" id="submit" value="Submit answer!"/>'
   );
   const timer = $('<h1 id="timer"></h1>');
+  db.collection(gameID)
+    .doc("logistics")
+    .onSnapshot(function(doc) {
+      time = doc.data()["timeHolder"];
+    });
   timer.text(`You have ${time} seconds left`);
   gameContainer.prepend(timer);
   gameContainer.append(labelAnswer);
