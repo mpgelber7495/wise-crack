@@ -233,5 +233,5 @@ function changeJudge(newJudge) {
   writeDataMerge(gameID, "logistics", judgeData);
 }
 
-let nickname = "paul";
+let nickname = "Ivo";
 instantiateRound();
