@@ -81,8 +81,9 @@ function runGameAsPlayer(nickname, roundID) {
     .doc(roundID)
     .onSnapshot(function(doc) {
       prompt = doc.data()["prompt"];
+      gameContainer.append(prompt);
     });
-  gameContainer.append(prompt);
+
   gameContainer.append("<br>");
   const labelAnswer = $(
     '<label for="answer-input">Enter your answer!</label> '
@@ -232,5 +233,5 @@ function changeJudge(newJudge) {
   writeDataMerge(gameID, "logistics", judgeData);
 }
 
-let nickname = "paul";
+let nickname = "Ivo";
 instantiateRound();
