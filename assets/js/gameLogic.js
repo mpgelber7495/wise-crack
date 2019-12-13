@@ -43,6 +43,34 @@ $(".container")[0].innerHTML += `
 
 // console.log(gameID);
 
+
+
+
+//API using Card cast, find a deck code and input below https://www.cardcastgame.com/browse?nsfw=1
+
+
+var deckId = "8BQAD";
+var calls;
+function getBlackCards(callback) {
+    var queryURL = "https://api.cardcastgame.com/v1/decks/" + deckId + "/cards";
+  
+    $.ajax({
+      url: queryURL,
+      method: "GET"
+    }).then(function(response) {
+      callback(response.calls);
+    });
+  }
+  
+  
+  function myCallback(data) {
+    calls = data;
+    console.log(calls[4].text);
+  }
+  
+  getBlackCards(myCallback);
+// console.log(gameID);
+
 // ------------------------------------------------
 // TO-DO: Function for running game as judge
 // ------------------------------------------------
