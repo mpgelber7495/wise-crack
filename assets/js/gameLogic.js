@@ -116,6 +116,7 @@ function runGameAsPlayer(nickname, roundID) {
   });
 }
 
+
 // ------------------------------------------------
 // TO-DO: Function for running game as judge
 // ------------------------------------------------
@@ -141,6 +142,7 @@ function setRandomPrompt(roundID) {
   var deckId = "8BQAD";
   var queryURL = "https://api.cardcastgame.com/v1/decks/" + deckId + "/cards";
 
+function setRandomPrompt(roundID) {
   $.ajax({
     url: queryURL,
     method: "GET"
