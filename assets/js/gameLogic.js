@@ -141,20 +141,18 @@ function setRandomPrompt(roundID) {
   var deckId = "8BQAD";
   var queryURL = "https://api.cardcastgame.com/v1/decks/" + deckId + "/cards";
 
-  function setRandomPrompt(roundID) {
-    $.ajax({
-      url: queryURL,
-      method: "GET"
-    }).then(function(response) {
-      let cardsArray = response.calls;
+  $.ajax({
+    url: queryURL,
+    method: "GET"
+  }).then(function(response) {
+    let cardsArray = response.calls;
 
-      let randomCard =
-        cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"][0];
-      let data = {};
-      data["prompt"] = randomCard;
-      writeDataMerge(gameID, roundID, data);
-    });
-  }
+    let randomCard =
+      cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"][0];
+    let data = {};
+    data["prompt"] = randomCard;
+    writeDataMerge(gameID, roundID, data);
+  });
 }
 
 // Function for counting down from 40 seconds
