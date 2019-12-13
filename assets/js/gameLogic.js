@@ -62,8 +62,6 @@ function runRoundAsJudge(roundID) {
   countDown(roundID);
 
   // setPrompt();
-
-  // Define the number of players as a variable
 }
 // Function for setting the prompt in the database
 function setPrompt(roundID, prompt) {
@@ -84,7 +82,7 @@ function countDown(roundID) {
       // Insert function to move all other players to the waiting screen
       // Insert function to listen to the responses and send the judges selection to firebase
       // Increase the roundCounter by one
-      incrementRoundCounter();
+
       // Set the new judge as the winner of previous round
     }
   }, 1000);
@@ -124,6 +122,10 @@ function listenForJudgesSelection(roundID) {
     let winnerAnswer = {};
     winnerAnswer["winningResponse"] = event.target.innerText;
     writeDataMerge(gameID, roundID, winnerAnswer);
+    // Increase the round counter in firebase
+    incrementRoundCounter();
+    // Change the judge variable in firebase
+    changeJudge(event.target.attributes.value.value);
   });
 }
 
