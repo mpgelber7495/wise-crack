@@ -52,7 +52,7 @@ function instantiateRound() {
     .then(function(doc) {
       let judge = doc.data()["judge"];
       if (judge === nickname) {
-        let roundCount = doc.data()["roundCounter"] + 1;
+        let roundCount = doc.data()["roundCounter"] + 2;
         let newRoundID = "round" + roundCount;
         let data = {};
         data["winningPlayer"] = "null";
@@ -233,5 +233,5 @@ function changeJudge(newJudge) {
   writeDataMerge(gameID, "logistics", judgeData);
 }
 
-let nickname = "Ivo";
+let nickname = "paul";
 instantiateRound();
