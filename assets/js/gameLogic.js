@@ -274,6 +274,9 @@ function setRandomPrompt(roundID) {
     let data = {};
     data["prompt"] = randomCard;
     writeDataMerge(gameID, roundID, data);
+    $(".container").html(
+      `<p class = "time-left-judge">Time Remaining: </p><p class = 'judge-prompt'>${randomCard}</p>`
+    );
   });
 }
 
@@ -283,6 +286,7 @@ function countDown(roundID) {
   var counter = setInterval(function() {
     timeHolder--;
     writeDataMerge(gameID, "logistics", { timeHolder: timeHolder });
+    $(".time-left-judge").text("Time Remaining: " + timeHolder);
     if (timeHolder < 1) {
       clearInterval(counter);
       displayCardsToJudge(roundID);
