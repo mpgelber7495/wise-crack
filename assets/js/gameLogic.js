@@ -43,12 +43,38 @@ $(".container")[0].innerHTML += `
 // console.log(gameID);
 
 // ------------------------------------------------
+// TO-DO: Instantiate Round
+// ------------------------------------------------
+function instantiateRound() {
+  db.collection(gameID)
+    .doc("logistics")
+    .get()
+    .then(function(doc) {
+      let judge = doc.data()["judge"];
+      if (judge === nickname) {
+        let roundCount = doc.data()["roundCounter"] + 2;
+        let newRoundID = "round" + roundCount;
+        let data = {};
+        data["winningPlayer"] = "null";
+        db.collection(gameID)
+          .doc(newRoundID)
+          .set(data);
+        runRoundAsJudge(newRoundID);
+      } else {
+        let roundCount = doc.data()["roundCounter"] + 1;
+        let newRoundID = "round" + roundCount;
+        runGameAsPlayer(nickname, newRoundID);
+      }
+    });
+}
+
+// ------------------------------------------------
 // TO-DO: Function for player
 // ------------------------------------------------
 
 const collectiondRef = db.collection("Game123");
 
-function player(nickname, time) {
+function runGameAsPlayer(nickname, roundID) {
   const gameContainer = $(".container");
   let prompt = "";
   db.collection(gameID)
@@ -69,10 +95,10 @@ function player(nickname, time) {
   db.collection(gameID)
     .doc("logistics")
     .onSnapshot(function(doc) {
-      time = doc.data()["timeHolder"];
+      var time = doc.data()["timeHolder"];
+      timer.text(`You have ${time} seconds left`);
+      gameContainer.prepend(timer);
     });
-  timer.text(`You have ${time} seconds left`);
-  gameContainer.prepend(timer);
   gameContainer.append(labelAnswer);
   gameContainer.append(playerAnswer);
   gameContainer.append(submitAnswer);
@@ -83,31 +109,19 @@ function player(nickname, time) {
       gameContainer.text("No answer");
     }
     //send answer to the firestore
-    ollectiondRef
-      .doc(nickname)
-      .set({
-        nickname: answer
-      })
-      .catch(function(error) {
-        console.error("Error adding document: ", error);
-      });
+    let data = {};
+    data[nickname] = answer;
+    writeDataMerge(gameID, roundID, data);
     gameContainer.text("We got your answer!");
   });
 }
 
-//API using Card cast, find a deck code and input below https://www.cardcastgame.com/browse?nsfw=1
-
-var deckId = "8BQAD";
-
-var queryURL = "https://api.cardcastgame.com/v1/decks/" + deckId + "/cards";
-
 // ------------------------------------------------
 // TO-DO: Function for running game as judge
 // ------------------------------------------------
-
 // Using stagnant gameID for development
-const gameID = "Game123";
 
+let gameID = "Game123";
 // Setting an array equal to the players who have signed up via path gameID >> Logistics >> players
 let playersArray = [];
 db.collection(gameID)
@@ -121,19 +135,26 @@ function runRoundAsJudge(roundID) {
   setRandomPrompt(roundID);
 }
 // Function for setting the prompt in the database
-function setRandomPrompt(roundID) {
-  $.ajax({
-    url: queryURL,
-    method: "GET"
-  }).then(function(response) {
-    let cardsArray = response.calls;
 
-    let randomCard =
-      cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"][0];
-    let data = {};
-    data["prompt"] = randomCard;
-    writeDataMerge(gameID, roundID, data);
-  });
+function setRandomPrompt(roundID) {
+  // API using Card cast, find a deck code and input below https://www.cardcastgame.com/browse?nsfw=1
+  var deckId = "8BQAD";
+  var queryURL = "https://api.cardcastgame.com/v1/decks/" + deckId + "/cards";
+
+  function setRandomPrompt(roundID) {
+    $.ajax({
+      url: queryURL,
+      method: "GET"
+    }).then(function(response) {
+      let cardsArray = response.calls;
+
+      let randomCard =
+        cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"][0];
+      let data = {};
+      data["prompt"] = randomCard;
+      writeDataMerge(gameID, roundID, data);
+    });
+  }
 }
 
 // Function for counting down from 40 seconds
@@ -213,4 +234,5 @@ function changeJudge(newJudge) {
   writeDataMerge(gameID, "logistics", judgeData);
 }
 
-runRoundAsJudge("round1");
+let nickname = "paul";
+instantiateRound();
