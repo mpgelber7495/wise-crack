@@ -39,6 +39,7 @@ $(".container")[0].innerHTML += `
 var gameID;
 var inputGameID;
 let allPlayers = [];
+let nickname;
 
 // create game button logic
 $(".container").on("click", ".create-game-btn", function(event) {
@@ -90,6 +91,7 @@ $(".container").on("click", ".ready-btn-join", function(event) {
   let nicknameInput = $("#nicknameInput")
     .val()
     .trim();
+  nickname = nicknameInput;
   if (nicknameInput && inputGameID !== "") {
     db.collection(inputGameID)
       .doc("logistics")
@@ -108,6 +110,7 @@ $(".container").on("click", ".ready-btn-create", function(event) {
   let nicknameInput = $("#nicknameInput")
     .val()
     .trim();
+  nickname = nicknameInput;
   if (nicknameInput !== "") {
     let pushJudgeData = {};
     pushJudgeData["judge"] = nicknameInput;
@@ -157,6 +160,7 @@ function renderJudgeWaitScreen(inputGameID) {
       $(".container").html(
         `<h5> Waiting for other players to join the game....</h5><p>${players}</p><button type="submit" class="btn btn-primary start-btnn">Start Game</button>`
       );
+      $(".start-btn").on("click", instantiateRound());
     });
 }
 // ------------------------------------------------
@@ -348,6 +352,3 @@ function changeJudge(newJudge) {
   judgeData["judge"] = newJudge;
   writeDataMerge(gameID, "logistics", judgeData);
 }
-
-let nickname = "Ivo";
-instantiateRound();
