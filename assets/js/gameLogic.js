@@ -48,21 +48,6 @@ $(".container")[0].innerHTML += `
 var deckId = "8BQAD";
 
 var queryURL = "https://api.cardcastgame.com/v1/decks/" + deckId + "/cards";
-function generateRandomCard() {
-  $.ajax({
-    url: queryURL,
-    method: "GET"
-  }).then(function(response) {
-    let cardsArray = response.calls;
-    console.log(cardsArray);
-    console.log(
-      cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"][0]
-    );
-    return str(
-      cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"][0]
-    );
-  });
-}
 
 // console.log(gameID);
 
@@ -83,14 +68,22 @@ db.collection(gameID)
 
 function runRoundAsJudge(roundID) {
   countDown(roundID);
-  let randCard = generateRandomCard();
-  setPrompt(roundID, randCard);
+  setRandomPrompt(roundID);
 }
 // Function for setting the prompt in the database
-function setPrompt(roundID, prompt) {
-  let data = {};
-  data["prompt"] = prompt;
-  writeDataMerge(gameID, roundID, data);
+function setRandomPrompt(roundID) {
+  $.ajax({
+    url: queryURL,
+    method: "GET"
+  }).then(function(response) {
+    let cardsArray = response.calls;
+
+    let randomCard =
+      cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"][0];
+    let data = {};
+    data["prompt"] = randomCard;
+    writeDataMerge(gameID, roundID, data);
+  });
 }
 
 // Function for counting down from 40 seconds
