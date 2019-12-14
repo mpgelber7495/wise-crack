@@ -306,7 +306,7 @@ function setRandomPrompt(roundID) {
     let cardsArray = response.calls;
     let randomCard =
       cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"][0];
-    if (randomCard) {
+    if (!randomCard) {
       setRandomPrompt(roundID);
     }
 
