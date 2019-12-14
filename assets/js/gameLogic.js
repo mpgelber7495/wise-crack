@@ -141,6 +141,8 @@ function renderPlayerWaitScreen(inputGameID) {
         $(".container").html(
           `<h5> Waiting for other players to join the game....</h5><p>${players}</p>`
         );
+      } else if (doc.data().gameStarted === true) {
+        instantiateRound();
       }
     });
 }
