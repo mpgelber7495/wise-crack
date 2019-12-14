@@ -85,6 +85,7 @@ $(".container").on("click", ".ready-btn-join", function(event) {
   let nicknameInput = $("#nicknameInput")
     .val()
     .trim();
+  $(nicknameInput).val(text.replace(/[^A-Za-z]/g, ""));
   nickname = nicknameInput;
   gameID = inputGameID;
   if (nicknameInput && inputGameID !== "") {
@@ -98,6 +99,10 @@ $(".container").on("click", ".ready-btn-join", function(event) {
         }
       });
   }
+});
+$(".container").on("keyup", "input", function() {
+  var text = $(this).val();
+  $(this).val(text.replace(/[^A-Za-z]/g, ""));
 });
 
 // create-join button logic (PLAYER WHO CREATES GAME AND BECOMES JUDGE)
@@ -306,9 +311,7 @@ function setRandomPrompt(roundID) {
     let cardsArray = response.calls;
     let randomCard =
       cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"][0];
-    if (!randomCard) {
-      setRandomPrompt(roundID);
-    }
+    console.log("[DEBUG] randomCard: " + randomCard);
 
     let cardData = {};
     cardData["prompt"] = randomCard;
