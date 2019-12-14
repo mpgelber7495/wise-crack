@@ -306,7 +306,7 @@ function setRandomPrompt(roundID) {
     let cardsArray = response.calls;
     let randomCard =
       cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"][0];
-    if (randomCard) {
+    if (!randomCard) {
       setRandomPrompt(roundID);
     }
 
@@ -352,7 +352,7 @@ function displayCardsToJudge(roundID) {
             roundResponseObject[playersArray[i]]
           }</p>`;
 
-          selectionPHolder += playerResponseElement;
+          selectionPHolder.append(playerResponseElement);
         }
       }
       let roundSelectionElement = `<div class = "round-selection-container"> <h5 class = "show-judge-prompt-holder">${
