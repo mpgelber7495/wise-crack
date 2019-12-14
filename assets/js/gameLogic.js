@@ -84,6 +84,7 @@ $(".container").on("click", ".ready-btn-join", function(event) {
     .val()
     .trim();
   nickname = nicknameInput;
+  gameID = inputGameID;
   if (nicknameInput && inputGameID !== "") {
     db.collection(inputGameID)
       .doc("logistics")
@@ -127,21 +128,24 @@ function pushPlayersToDB(gameID, nicknameInput) {
     });
 }
 
+var unsubscribeRenderPlayerWaitScreen;
 //Wait Screen Function
 // FIX BUG - make this hidden once the round has begun
 function renderPlayerWaitScreen(inputGameID) {
   $(".container").html("");
   let players;
-  db.collection(inputGameID)
+  unsubscribeRenderPlayerWaitScreen = db
+    .collection(inputGameID)
     .doc("logistics")
     .onSnapshot(function(doc) {
       if (doc.data().gameStarted === false) {
+        console.log(doc.data().gameStarted);
         players = doc.data().players;
-
         $(".container").html(
           `<h5> Waiting for other players to join the game....</h5><p>${players}</p>`
         );
-      } else if (doc.data().gameStarted === true) {
+      } else {
+        console.log("SDFDLSFKj");
         instantiateRound();
       }
     });
@@ -166,7 +170,6 @@ function renderJudgeWaitScreen(inputGameID) {
 // TO-DO: Instantiate Round
 // ------------------------------------------------
 function instantiateRound() {
-  writeDataMerge(gameID, "logistics", { gameStarted: "true" });
   definePlayersArray();
   db.collection(gameID)
     .doc("logistics")
@@ -174,6 +177,7 @@ function instantiateRound() {
     .then(function(doc) {
       let judge = doc.data()["judge"];
       if (judge === nickname) {
+        writeDataMerge(gameID, "logistics", { gameStarted: "true" });
         let roundCount = doc.data()["roundCounter"];
         let newRoundID = "round" + roundCount;
         let data = {};
@@ -185,6 +189,7 @@ function instantiateRound() {
       } else {
         let roundCount = doc.data()["roundCounter"];
         let newRoundID = "round" + roundCount;
+        unsubscribeRenderPlayerWaitScreen();
         runGameAsPlayer(nickname, newRoundID);
       }
     });
@@ -215,6 +220,7 @@ function runGameAsPlayer(nickname, roundID) {
     '<input type="button" id="submit" value="Submit answer!"/>'
   );
   const timer = $('<h1 id="timer"></h1>');
+
   db.collection(gameID)
     .doc("logistics")
     .onSnapshot(function(doc) {
