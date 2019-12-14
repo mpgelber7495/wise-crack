@@ -213,7 +213,10 @@ function instantiateRound() {
 const collectiondRef = db.collection("Game123");
 
 function runGameAsPlayer(nickname, roundID) {
-  unsubPlayerJoin();
+  try {
+    unsubPlayerJoin();
+  } catch (err) {}
+  $(".container").empty();
   $(
     ".container"
   )[0].innerHTML += `<div class="row prompt-row"></div><div class="row timer-row"></div><div class="row input-row"`;
