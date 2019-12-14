@@ -102,7 +102,7 @@ $(".container").on("click", ".ready-btn-join", function(event) {
 });
 $(".container").on("keyup", "input", function() {
   var text = $(this).val();
-  $(this).val(text.replace(/[^A-Za-z]/g, ""));
+  $(this).val(text.replace(/[^A-Za-z0-9]/g, ""));
 });
 
 // create-join button logic (PLAYER WHO CREATES GAME AND BECOMES JUDGE)
