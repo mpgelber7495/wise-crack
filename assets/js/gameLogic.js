@@ -185,6 +185,7 @@ function instantiateRound() {
         writeDataMerge(gameID, "logistics", { gameStarted: "true" });
         let roundCount = doc.data()["roundCounter"];
         let newRoundID = "round" + roundCount;
+        print("NEW ROUND: " + newRoundID);
         let data = {};
         data["winningPlayer"] = "null";
         db.collection(gameID)
@@ -251,7 +252,17 @@ function runGameAsPlayer(nickname, roundID) {
     data[nickname] = answer;
     writeDataMerge(gameID, roundID, data);
     gameContainer.text("We got your answer!");
+    listenForNewRound(roundID);
   });
+}
+function listenForNewRound(roundID) {
+  db.collection(gameID)
+    .doc(roundID)
+    .onSnapshot(function(doc) {
+      if (doc.data()["winningResponse"]) {
+        instantiateRound();
+      }
+    });
 }
 
 // ------------------------------------------------
@@ -299,7 +310,7 @@ function setRandomPrompt(roundID) {
 
 // Function for counting down from 40 seconds
 function countDown(roundID) {
-  let timeHolder = 40;
+  let timeHolder = 15;
   var counter = setInterval(function() {
     timeHolder--;
     writeDataMerge(gameID, "logistics", { timeHolder: timeHolder });
@@ -356,6 +367,7 @@ function listenForJudgesSelection(roundID) {
     incrementRoundCounter();
     // Change the judge variable in firebase
     changeJudge(event.target.attributes.value.value);
+    instantiateRound();
   });
 }
 
