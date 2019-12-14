@@ -45,7 +45,7 @@ $(".container").on("click", ".create-game-btn", function(event) {
   <p class ="game-id-holder">Game ID: ${gameID}</p>
   <div class="form-group mt-4 mb-4">
     <label for="nicknameInput">Choose a Nickname!</label>
-    <input type="text" class="mt-2 form-control" id="nicknameInput" placeholder="Russomp">
+    <input type="text" class="mt-2 form-control" id="nicknameInput" placeholder="Nickname">
   </div>
   <button type="submit" class="btn btn-primary ready-btn-create">Ready</button>
 </form>`;
@@ -67,7 +67,7 @@ $(".container").on("click", ".join-game-btn", function(event) {
   $(".container")[0].innerHTML += `<form>
   <div class="form-group mt-4 mb-4">
     <label for="nicknameInput">Choose a Nickname!</label>
-    <input type="text" class="mt-2 mb-4 form-control" id="nicknameInput" placeholder="Russomp">
+    <input type="text" class="mt-2 mb-4 form-control" id="nicknameInput" placeholder="Nickname">
     <label for="GameIDInput">Enter Game ID</label>
     <input type="text" class="mt-2 form-control" id="gameIDInput" placeholder="Game ID">
   </div>
@@ -152,7 +152,7 @@ function renderPlayerWaitScreen(inputGameID) {
         console.log(doc.data().gameStarted);
         players = doc.data().players;
         $(".container").html(
-          `<h5> Waiting for other players to join the game....</h5><p>${players}</p>`
+          `<h5> Waiting for other players to join the game....</h5><p class="waiting-for-players">${players}</p>`
         );
       } else {
         dummyInstantiate();
