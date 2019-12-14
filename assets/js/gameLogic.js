@@ -85,7 +85,6 @@ $(".container").on("click", ".ready-btn-join", function(event) {
   let nicknameInput = $("#nicknameInput")
     .val()
     .trim();
-  $(nicknameInput).val(text.replace(/[^A-Za-z]/g, ""));
   nickname = nicknameInput;
   gameID = inputGameID;
   if (nicknameInput && inputGameID !== "") {
@@ -100,7 +99,7 @@ $(".container").on("click", ".ready-btn-join", function(event) {
       });
   }
 });
-$(".container").on("keyup", "input", function() {
+$(".container").on("keyup", "#nicknameInput", function() {
   var text = $(this).val();
   $(this).val(text.replace(/[^A-Za-z0-9]/g, ""));
 });
