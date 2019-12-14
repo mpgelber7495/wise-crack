@@ -352,7 +352,7 @@ function displayCardsToJudge(roundID) {
             roundResponseObject[playersArray[i]]
           }</p>`;
 
-          selectionPHolder.append(playerResponseElement);
+          selectionPHolder += playerResponseElement;
         }
       }
       let roundSelectionElement = `<div class = "round-selection-container"> <h5 class = "show-judge-prompt-holder">${
