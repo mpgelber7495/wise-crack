@@ -1,12 +1,14 @@
 var db = firebase.firestore();
 
 function writeDataMerge(collection, doc, data) {
+  console.log("[DEBUG] writeDataMerge ::", data);
   db.collection(collection)
     .doc(doc)
     .set(data, { merge: true });
 }
 
 function writeDataMergeWhipped(collection, doc, data) {
+  console.log("[DEBUG] writeDataMerge ::", data);
   db.collection(collection)
     .doc(doc)
     .set(data, { merge: true });
@@ -137,6 +139,10 @@ function renderPlayerWaitScreen(inputGameID) {
   db.collection(inputGameID)
     .doc("logistics")
     .onSnapshot(function(doc) {
+      console.log(
+        "[DEBUG] renderPlayerWaitScreen ::",
+        JSON.stringify(doc.data())
+      );
       if (doc.data().gameStarted === false) {
         console.log(doc.data().gameStarted);
         players = doc.data().players;
@@ -144,7 +150,6 @@ function renderPlayerWaitScreen(inputGameID) {
           `<h5> Waiting for other players to join the game....</h5><p>${players}</p>`
         );
       } else {
-        console.log("SDFDLSFKj");
         dummyInstantiate();
         dummyInstantiate = function() {};
       }
@@ -174,18 +179,21 @@ function renderJudgeWaitScreen(inputGameID) {
 // TO-DO: Instantiate Round
 // ------------------------------------------------
 function instantiateRound() {
-  console.log("hello");
+  console.log("[DEBUG] instantiateRound");
   definePlayersArray();
   db.collection(gameID)
     .doc("logistics")
     .get()
     .then(function(doc) {
       let judge = doc.data()["judge"];
+      let roundCount = doc.data()["roundCounter"];
+      let newRoundID = "round" + roundCount;
+      console.log(
+        "[DEBUG] instantiateRound :: creating new round ::",
+        newRoundID
+      );
       if (judge === nickname) {
         writeDataMerge(gameID, "logistics", { gameStarted: "true" });
-        let roundCount = doc.data()["roundCounter"];
-        let newRoundID = "round" + roundCount;
-        print("NEW ROUND: " + newRoundID);
         let data = {};
         data["winningPlayer"] = "null";
         db.collection(gameID)
@@ -193,9 +201,6 @@ function instantiateRound() {
           .set(data);
         runRoundAsJudge(newRoundID);
       } else {
-        let roundCount = doc.data()["roundCounter"];
-        let newRoundID = "round" + roundCount;
-
         runGameAsPlayer(nickname, newRoundID);
       }
     });
@@ -259,6 +264,7 @@ function listenForNewRound(roundID) {
   db.collection(gameID)
     .doc(roundID)
     .onSnapshot(function(doc) {
+      console.log("[DEBUG] listenForNewRound ::", JSON.stringify(doc.data()));
       if (doc.data()["winningResponse"]) {
         instantiateRound();
       }
@@ -362,11 +368,12 @@ function listenForJudgesSelection(roundID) {
     // Write the winning response to firebase
     let winnerAnswer = {};
     winnerAnswer["winningResponse"] = event.target.innerText;
-    writeDataMerge(gameID, roundID, winnerAnswer);
+
     // Increase the round counter in firebase
     incrementRoundCounter();
     // Change the judge variable in firebase
     changeJudge(event.target.attributes.value.value);
+    writeDataMerge(gameID, roundID, winnerAnswer);
     instantiateRound();
   });
 }
