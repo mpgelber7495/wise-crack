@@ -53,7 +53,7 @@ $(".container").on("click", ".create-game-btn", function(event) {
       judge: null,
       playerCount: 0,
       roundCounter: 1,
-      timeHolder: 0,
+      timeHolder: 40,
       players: [],
       gameStarted: false
     });
@@ -72,7 +72,7 @@ $(".container").on("click", ".join-game-btn", function(event) {
   <button type="submit" class="btn btn-primary ready-btn-join">Ready</button>
 </form>`;
 });
-
+var unsubPlayerJoin;
 // ready join button logic (PERSON WHO JOINES GAME)
 $(".container").on("click", ".ready-btn-join", function(event) {
   event.preventDefault();
@@ -86,7 +86,8 @@ $(".container").on("click", ".ready-btn-join", function(event) {
   nickname = nicknameInput;
   gameID = inputGameID;
   if (nicknameInput && inputGameID !== "") {
-    db.collection(inputGameID)
+    unsubPlayerJoin = db
+      .collection(inputGameID)
       .doc("logistics")
       .onSnapshot(function(doc) {
         if (doc.data().roundCounter === 1) {
@@ -128,14 +129,12 @@ function pushPlayersToDB(gameID, nicknameInput) {
     });
 }
 
-var unsubscribeRenderPlayerWaitScreen;
 //Wait Screen Function
 // FIX BUG - make this hidden once the round has begun
 function renderPlayerWaitScreen(inputGameID) {
   $(".container").html("");
   let players;
-  unsubscribeRenderPlayerWaitScreen = db
-    .collection(inputGameID)
+  db.collection(inputGameID)
     .doc("logistics")
     .onSnapshot(function(doc) {
       if (doc.data().gameStarted === false) {
@@ -146,9 +145,14 @@ function renderPlayerWaitScreen(inputGameID) {
         );
       } else {
         console.log("SDFDLSFKj");
-        instantiateRound();
+        dummyInstantiate();
+        dummyInstantiate = function() {};
       }
     });
+}
+
+function dummyInstantiate() {
+  instantiateRound();
 }
 
 function renderJudgeWaitScreen(inputGameID) {
@@ -170,6 +174,7 @@ function renderJudgeWaitScreen(inputGameID) {
 // TO-DO: Instantiate Round
 // ------------------------------------------------
 function instantiateRound() {
+  console.log("hello");
   definePlayersArray();
   db.collection(gameID)
     .doc("logistics")
@@ -189,7 +194,7 @@ function instantiateRound() {
       } else {
         let roundCount = doc.data()["roundCounter"];
         let newRoundID = "round" + roundCount;
-        unsubscribeRenderPlayerWaitScreen();
+
         runGameAsPlayer(nickname, newRoundID);
       }
     });
@@ -202,16 +207,21 @@ function instantiateRound() {
 const collectiondRef = db.collection("Game123");
 
 function runGameAsPlayer(nickname, roundID) {
+  unsubPlayerJoin();
+  $(
+    ".container"
+  )[0].innerHTML += `<div class="row prompt-row"></div><div class="row timer-row"></div><div class="row input-row"`;
   const gameContainer = $(".container");
   let prompt = "";
   db.collection(gameID)
     .doc(roundID)
-    .onSnapshot(function(doc) {
+    .get()
+    .then(function(doc) {
       prompt = doc.data()["prompt"];
-      gameContainer.append(prompt);
+      $(".prompt-row").html(prompt);
     });
 
-  gameContainer.append("<br>");
+  // gameContainer.append("<br>");
   const labelAnswer = $(
     '<label for="answer-input">Enter your answer!</label> '
   );
@@ -220,15 +230,15 @@ function runGameAsPlayer(nickname, roundID) {
     '<input type="button" id="submit" value="Submit answer!"/>'
   );
   const timer = $('<h1 id="timer"></h1>');
+  $(".timer-row").html(timer);
 
   db.collection(gameID)
     .doc("logistics")
     .onSnapshot(function(doc) {
       var time = doc.data()["timeHolder"];
       timer.text(`You have ${time} seconds left`);
-      gameContainer.prepend(timer);
     });
-  gameContainer.append(labelAnswer);
+  $(".input-row").html(labelAnswer);
   gameContainer.append(playerAnswer);
   gameContainer.append(submitAnswer);
   submitAnswer.on("click", () => {
@@ -290,7 +300,7 @@ function setRandomPrompt(roundID) {
 
 // Function for counting down from 40 seconds
 function countDown(roundID) {
-  let timeHolder = 10;
+  let timeHolder = 50;
   var counter = setInterval(function() {
     timeHolder--;
     writeDataMerge(gameID, "logistics", { timeHolder: timeHolder });
