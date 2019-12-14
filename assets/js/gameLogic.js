@@ -53,7 +53,7 @@ $(".container").on("click", ".create-game-btn", function(event) {
       judge: null,
       playerCount: 0,
       roundCounter: 1,
-      timeHolder: 40,
+      timeHolder: 0,
       players: [],
       gameStarted: false
     });
@@ -215,8 +215,7 @@ function runGameAsPlayer(nickname, roundID) {
   let prompt = "";
   db.collection(gameID)
     .doc(roundID)
-    .get()
-    .then(function(doc) {
+    .onSnapshot(function(doc) {
       prompt = doc.data()["prompt"];
       $(".prompt-row").html(prompt);
     });
@@ -300,7 +299,7 @@ function setRandomPrompt(roundID) {
 
 // Function for counting down from 40 seconds
 function countDown(roundID) {
-  let timeHolder = 50;
+  let timeHolder = 40;
   var counter = setInterval(function() {
     timeHolder--;
     writeDataMerge(gameID, "logistics", { timeHolder: timeHolder });
@@ -333,7 +332,9 @@ function displayCardsToJudge(roundID) {
           selectionPHolder += playerResponseElement;
         }
       }
-      let roundSelectionElement = `<div class = "round-selection-container"> ${selectionPHolder} </div>`;
+      let roundSelectionElement = `<div class = "round-selection-container"> <h5 class = "show-judge-prompt-holder">${
+        doc.data()["prompt"]
+      }:</h5>${selectionPHolder} </div>`;
 
       $(".container").html(roundSelectionElement);
       // Placing the click listener here because it must occur sequentially once the objects have actually been added to the HTML
