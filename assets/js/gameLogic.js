@@ -7,7 +7,7 @@ function writeDataMerge(collection, doc, data) {
     .set(data, { merge: true });
 }
 
-function writeDataMergeWhipped(collection, doc, data) {
+function writeDataMergeWhipped(collection, doc, data) { 
   console.log("[DEBUG] writeDataMerge ::", data);
   db.collection(collection)
     .doc(doc)
@@ -18,7 +18,7 @@ function writeDataMergeWhipped(collection, doc, data) {
 
 $(".container")[0].innerHTML += `
 <div class="col-12 mt-4 mb-4 create-row d-flex justify-content-center">
-<p class = "game-description"> Welcome to WiseCrack! With this funky game, you and your friends will be given prompts and have to creatively enter your own responses!</p>
+<p class = "game-description"> Welcome to <span>WiseCrack!</span> <br> With this funky game, you and your friends will be given prompts and have to creatively enter your own responses!</p>
 </div>
 <div class="col-12 mt-4 mb-4 create-row d-flex justify-content-center">
   <button type="button" class="btn btn-secondary btn-lg create-game-btn">
