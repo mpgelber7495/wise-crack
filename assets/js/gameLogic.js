@@ -122,16 +122,10 @@ $(".container").on("click", ".ready-btn-create", function(event) {
 
 //function that pushes player to DB
 function pushPlayersToDB(gameID, nicknameInput) {
-  let playerData;
   db.collection(gameID)
     .doc("logistics")
-    .onSnapshot(function(doc) {
-      let pushPlayerData = {};
-      playerData = doc.data().players;
-      playerData.push(nicknameInput);
-      pushPlayerData["players"] = playerData;
-      writeDataMergeWhipped(gameID, "logistics", pushPlayerData);
-      writeDataMergeWhipped = function() {};
+    .update({
+      players: firebase.firestore.FieldValue.arrayUnion(nicknameInput)
     });
 }
 
@@ -143,6 +137,9 @@ function renderPlayerWaitScreen(inputGameID) {
   db.collection(inputGameID)
     .doc("logistics")
     .onSnapshot(function(doc) {
+      if (!doc.data()) {
+        return;
+      }
       console.log(
         "[DEBUG] renderPlayerWaitScreen ::",
         JSON.stringify(doc.data())
@@ -223,12 +220,15 @@ function runGameAsPlayer(nickname, roundID) {
   $(".container").empty();
   $(
     ".container"
-  )[0].innerHTML += `<div class="row prompt-row"></div><div class="row timer-row"></div><div class="row input-row"`;
+  )[0].innerHTML += `<div class="row prompt-row"></div><div class="row timer-row"></div><div class="row input-row"></div>`;
   const gameContainer = $(".container");
   let prompt = "";
   db.collection(gameID)
     .doc(roundID)
     .onSnapshot(function(doc) {
+      if (!doc.data()) {
+        return;
+      }
       prompt = doc.data()["prompt"];
       $(".prompt-row").html(prompt);
     });
@@ -247,6 +247,9 @@ function runGameAsPlayer(nickname, roundID) {
   db.collection(gameID)
     .doc("logistics")
     .onSnapshot(function(doc) {
+      if (!doc.data()) {
+        return;
+      }
       var time = doc.data()["timeHolder"];
       timer.text(`You have ${time} seconds left`);
     });
@@ -271,6 +274,9 @@ function listenForNewRound(roundID) {
   db.collection(gameID)
     .doc(roundID)
     .onSnapshot(function(doc) {
+      if (!doc.data()) {
+        return;
+      }
       console.log("[DEBUG] listenForNewRound ::", JSON.stringify(doc.data()));
       if (doc.data()["winningResponse"]) {
         instantiateRound();
