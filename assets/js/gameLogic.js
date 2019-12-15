@@ -225,7 +225,7 @@ function runGameAsPlayer(nickname, roundID) {
   $(".container").empty();
   $(
     ".container"
-  )[0].innerHTML += `<div class="row prompt-row"></div><div class="row timer-row"></div><div class="row input-row"></div>`;
+  )[0].innerHTML += `<div class="row prompt-row d-flex justify-content-center"></div><div class="d-flex justify-content-center row timer-row"></div><div class=" d-flex justify-content-center row input-row"></div>`;
   const gameContainer = $(".container");
   let prompt = "";
   db.collection(gameID)
@@ -242,11 +242,11 @@ function runGameAsPlayer(nickname, roundID) {
   const labelAnswer = $(
     '<label for="answer-input">Enter your answer!</label> '
   );
-  const playerAnswer = $('<input id="answer-input" type="text"/>');
+  const playerAnswer = $('<input id="answer-input" type="text"/> </br>');
   const submitAnswer = $(
-    '<input type="button" id="submit" value="Submit answer!"/>'
+    '<input type="button" class ="btn" id="submit" value="Submit answer!"/>'
   );
-  const timer = $('<h5 id="timer"></h5>');
+  const timer = $('<h5 id="timer" class ="mb-2"></h5>');
   $(".timer-row").html(timer);
 
   db.collection(gameID)
@@ -366,9 +366,9 @@ function displayCardsToJudge(roundID) {
       let roundResponseObject = doc.data();
       for (let i = 0; i < playersArray.length; i++) {
         if (roundResponseObject[playersArray[i]]) {
-          let playerResponseElement = `<p value = ${playersArray[i]}> ${
-            roundResponseObject[playersArray[i]]
-          }</p>`;
+          let playerResponseElement = `<p class = "player-response-holder text-center py-3 mx-2" value = ${
+            playersArray[i]
+          }> ${roundResponseObject[playersArray[i]]}</p>`;
 
           selectionPHolder += playerResponseElement;
         }

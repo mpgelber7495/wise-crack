@@ -53,6 +53,11 @@ label {
   font-weight: bold;
 }
 
+.player-response-holder {
+  background-color: white;
+  font-size: 15px;
+}
+
 .show-judge-prompt-holder,
 .judge-prompt,
 .game-id-holder,
