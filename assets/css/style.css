@@ -12,51 +12,55 @@ body {
   padding: 15px;
   margin: -10px auto;
   border-radius: 0;
-  border:1.5px solid #100950;
-background-color: #ffffffD6;
-  width: 25%;
- 
-
+  border: 1.5px solid #100950;
+  background-color: #ffffffd6;
+  width: 100%;
 }
 
-
 h1 {
-    margin-top: 20px;
-    text-align: center;
-    font-size: 4.2em;
-    color: rgb(248, 248, 248);
-    text-shadow: -2px -2px 0 #100950, 2px -2px 0 #100950, -2px 2px 0 #100950,
-      2px 2px 0 #100950;
-  
-    /* transform: rotate(-6deg); */
-  }
+  margin-top: 20px;
+  text-align: center;
+  font-size: 4.2em;
+  color: rgb(248, 248, 248);
+  text-shadow: -2px -2px 0 #100950, 2px -2px 0 #100950, -2px 2px 0 #100950,
+    2px 2px 0 #100950;
 
-  .btn {
-margin: auto;
-    background-color: #100950;
-    color: white;
-  }
+  /* transform: rotate(-6deg); */
+}
 
-  label {
-    font-size: 1.3em;
-    text-align: center;
-    color: #100950;
-    font-weight: bold;
-  }
+.game-description {
+  font-size: 15px;
+}
 
-  .judge-countdown-holder {
-      margin-top: 15px; 
-    font-size: 1.3em;
-    text-align: center;
-    color: #100950;
-    font-weight: bold;
-  }
+.btn {
+  margin: auto;
+  background-color: #100950;
+  color: white;
+}
 
-  .show-judge-prompt-holder, .judge-prompt, .game-id-holder, h5, p{
-    margin-top: 15px; 
-    font-size: 1.3em;
-    /* text-align: center; */
-    color: #100950;
-    font-weight: bold;
-   
-  }
+label {
+  font-size: 1.3em;
+  text-align: center;
+  color: #100950;
+  font-weight: bold;
+}
+
+.judge-countdown-holder {
+  margin-top: 15px;
+  font-size: 1.3em;
+  text-align: center;
+  color: #100950;
+  font-weight: bold;
+}
+
+.show-judge-prompt-holder,
+.judge-prompt,
+.game-id-holder,
+h5,
+p {
+  margin-top: 15px;
+  font-size: 1.3em;
+  /* text-align: center; */
+  color: #100950;
+  font-weight: bold;
+}

@@ -18,6 +18,9 @@ function writeDataMergeWhipped(collection, doc, data) {
 
 $(".container")[0].innerHTML += `
 <div class="col-12 mt-4 mb-4 create-row d-flex justify-content-center">
+<p class = "game-description"> Welcome to WiseCrack! With this funky game, you and your friends will be given prompts and have to creatively enter your own responses!</p>
+</div>
+<div class="col-12 mt-4 mb-4 create-row d-flex justify-content-center">
   <button type="button" class="btn btn-secondary btn-lg create-game-btn">
     Create New Game
   </button>
@@ -241,7 +244,7 @@ function runGameAsPlayer(nickname, roundID) {
   const submitAnswer = $(
     '<input type="button" id="submit" value="Submit answer!"/>'
   );
-  const timer = $('<h1 id="timer"></h1>');
+  const timer = $('<h5 id="timer"></h5>');
   $(".timer-row").html(timer);
 
   db.collection(gameID)
