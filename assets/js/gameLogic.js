@@ -191,6 +191,7 @@ function instantiateRound() {
     .then(function(doc) {
       let judge = doc.data()["judge"];
       let roundCount = doc.data()["roundCounter"];
+      console.log("[DEBUG]: instantiate Round roundCount: " + roundCount);
       let newRoundID = "round" + roundCount;
       console.log(
         "[DEBUG] instantiateRound :: creating new round ::",
@@ -200,6 +201,7 @@ function instantiateRound() {
         writeDataMerge(gameID, "logistics", { gameStarted: "true" });
         let data = {};
         data["winningPlayer"] = "null";
+        console.log("[DEBUG] Judge newRoundID: " + newRoundID);
         db.collection(gameID)
           .doc(newRoundID)
           .set(data);
@@ -280,7 +282,12 @@ function listenForNewRound(roundID) {
       if (!doc.data()) {
         return;
       }
-      console.log("[DEBUG] listenForNewRound ::", JSON.stringify(doc.data()));
+      console.log(
+        "[DEBUG] listenForNewRound :: doc.data() ",
+        JSON.stringify(doc.data())
+      );
+      console.log("[DEBUG] listenForNewRound :: gameID: ", gameID);
+      console.log("[DEBUG] listenForNewRound :: roundID: ", roundID);
       if (doc.data()["winningResponse"]) {
         instantiateRound();
       }
@@ -387,24 +394,22 @@ function listenForJudgesSelection(roundID) {
     winnerAnswer["winningResponse"] = event.target.innerText;
 
     // Increase the round counter in firebase
-    incrementRoundCounter();
-    // Change the judge variable in firebase
-    changeJudge(event.target.attributes.value.value);
-    writeDataMerge(gameID, roundID, winnerAnswer);
-    instantiateRound();
-  });
-}
 
-function incrementRoundCounter() {
-  db.collection(gameID)
-    .doc("logistics")
-    .get()
-    .then(function(doc) {
-      let roundCountHolder = doc.data()["roundCounter"];
-      let roundCount = {};
-      roundCount["roundCounter"] = roundCountHolder + 1;
-      writeDataMerge(gameID, "logistics", roundCount);
-    });
+    db.collection(gameID)
+      .doc("logistics")
+      .get()
+      .then(function(doc) {
+        let roundCountHolder = doc.data()["roundCounter"];
+        let roundCount = {};
+        roundCount["roundCounter"] = roundCountHolder + 1;
+        writeDataMerge(gameID, "logistics", roundCount);
+        // Change the judge variable in firebase
+        changeJudge(event.target.attributes.value.value);
+        writeDataMerge(gameID, roundID, winnerAnswer);
+
+        instantiateRound();
+      });
+  });
 }
 
 function changeJudge(newJudge) {
