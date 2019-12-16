@@ -18,6 +18,9 @@ function writeDataMergeWhipped(collection, doc, data) {
 
 $(".container")[0].innerHTML += `
 <div class="col-12 mt-4 mb-4 create-row d-flex justify-content-center">
+<p class = "game-description"> Welcome to <span>WiseCrack!</span> <br> With this funky game, you and your friends will be given prompts and have to creatively enter your own responses!</p>
+</div>
+<div class="col-12 mt-4 mb-4 create-row d-flex justify-content-center">
   <button type="button" class="btn btn-secondary btn-lg create-game-btn">
     Create New Game
   </button>
@@ -45,7 +48,7 @@ $(".container").on("click", ".create-game-btn", function(event) {
   <p class ="game-id-holder">Game ID: ${gameID}</p>
   <div class="form-group mt-4 mb-4">
     <label for="nicknameInput">Choose a Nickname!</label>
-    <input type="text" class="mt-2 form-control" id="nicknameInput" placeholder="Russomp">
+    <input type="text" class="mt-2 form-control" id="nicknameInput" placeholder="Nickname">
   </div>
   <button type="submit" class="btn btn-primary ready-btn-create">Ready</button>
 </form>`;
@@ -67,7 +70,7 @@ $(".container").on("click", ".join-game-btn", function(event) {
   $(".container")[0].innerHTML += `<form>
   <div class="form-group mt-4 mb-4">
     <label for="nicknameInput">Choose a Nickname!</label>
-    <input type="text" class="mt-2 mb-4 form-control" id="nicknameInput" placeholder="Russomp">
+    <input type="text" class="mt-2 mb-4 form-control" id="nicknameInput" placeholder="Nickname">
     <label for="GameIDInput">Enter Game ID</label>
     <input type="text" class="mt-2 form-control" id="gameIDInput" placeholder="Game ID">
   </div>
@@ -85,7 +88,6 @@ $(".container").on("click", ".ready-btn-join", function(event) {
   let nicknameInput = $("#nicknameInput")
     .val()
     .trim();
-  $(nicknameInput).val(text.replace(/[^A-Za-z]/g, ""));
   nickname = nicknameInput;
   gameID = inputGameID;
   if (nicknameInput && inputGameID !== "") {
@@ -100,7 +102,7 @@ $(".container").on("click", ".ready-btn-join", function(event) {
       });
   }
 });
-$(".container").on("keyup", "input", function() {
+$(".container").on("keyup", "#nicknameInput", function() {
   var text = $(this).val();
   $(this).val(text.replace(/[^A-Za-z0-9]/g, ""));
 });
@@ -123,16 +125,10 @@ $(".container").on("click", ".ready-btn-create", function(event) {
 
 //function that pushes player to DB
 function pushPlayersToDB(gameID, nicknameInput) {
-  let playerData;
   db.collection(gameID)
     .doc("logistics")
-    .onSnapshot(function(doc) {
-      let pushPlayerData = {};
-      playerData = doc.data().players;
-      playerData.push(nicknameInput);
-      pushPlayerData["players"] = playerData;
-      writeDataMergeWhipped(gameID, "logistics", pushPlayerData);
-      writeDataMergeWhipped = function() {};
+    .update({
+      players: firebase.firestore.FieldValue.arrayUnion(nicknameInput)
     });
 }
 
@@ -144,6 +140,9 @@ function renderPlayerWaitScreen(inputGameID) {
   db.collection(inputGameID)
     .doc("logistics")
     .onSnapshot(function(doc) {
+      if (!doc.data()) {
+        return;
+      }
       console.log(
         "[DEBUG] renderPlayerWaitScreen ::",
         JSON.stringify(doc.data())
@@ -152,7 +151,7 @@ function renderPlayerWaitScreen(inputGameID) {
         console.log(doc.data().gameStarted);
         players = doc.data().players;
         $(".container").html(
-          `<h5> Waiting for other players to join the game....</h5><p>${players}</p>`
+          `<h5> Waiting for other players to join the game....</h5><p class="waiting-for-players">${players}</p>`
         );
       } else {
         dummyInstantiate();
@@ -184,7 +183,7 @@ function renderJudgeWaitScreen(inputGameID) {
 // TO-DO: Instantiate Round
 // ------------------------------------------------
 function instantiateRound() {
-  console.log("[DEBUG] instantiateRound");
+  // console.log("[DEBUG] instantiateRound");
   definePlayersArray();
   db.collection(gameID)
     .doc("logistics")
@@ -192,15 +191,17 @@ function instantiateRound() {
     .then(function(doc) {
       let judge = doc.data()["judge"];
       let roundCount = doc.data()["roundCounter"];
+      // console.log("[DEBUG]: instantiate Round roundCount: " + roundCount);
       let newRoundID = "round" + roundCount;
-      console.log(
-        "[DEBUG] instantiateRound :: creating new round ::",
-        newRoundID
-      );
+      // console.log(
+      //   "[DEBUG] instantiateRound :: creating new round ::",
+      //   newRoundID
+      // );
       if (judge === nickname) {
         writeDataMerge(gameID, "logistics", { gameStarted: "true" });
         let data = {};
         data["winningPlayer"] = "null";
+        console.log("[DEBUG] Judge newRoundID: " + newRoundID);
         db.collection(gameID)
           .doc(newRoundID)
           .set(data);
@@ -224,12 +225,15 @@ function runGameAsPlayer(nickname, roundID) {
   $(".container").empty();
   $(
     ".container"
-  )[0].innerHTML += `<div class="row prompt-row"></div><div class="row timer-row"></div><div class="row input-row"`;
+  )[0].innerHTML += `<div class="row prompt-row d-flex justify-content-center"></div><div class="d-flex justify-content-center row timer-row"></div><div class=" d-flex justify-content-center row input-row"></div>`;
   const gameContainer = $(".container");
   let prompt = "";
   db.collection(gameID)
     .doc(roundID)
     .onSnapshot(function(doc) {
+      if (!doc.data()) {
+        return;
+      }
       prompt = doc.data()["prompt"];
       $(".prompt-row").html(prompt);
     });
@@ -238,16 +242,19 @@ function runGameAsPlayer(nickname, roundID) {
   const labelAnswer = $(
     '<label for="answer-input">Enter your answer!</label> '
   );
-  const playerAnswer = $('<input id="answer-input" type="text"/>');
+  const playerAnswer = $('<input id="answer-input" type="text"/> </br>');
   const submitAnswer = $(
-    '<input type="button" id="submit" value="Submit answer!"/>'
+    '<input type="button" class ="btn" id="submit" value="Submit answer!"/>'
   );
-  const timer = $('<h1 id="timer"></h1>');
+  const timer = $('<h5 id="timer" class ="mb-2"></h5>');
   $(".timer-row").html(timer);
 
   db.collection(gameID)
     .doc("logistics")
     .onSnapshot(function(doc) {
+      if (!doc.data()) {
+        return;
+      }
       var time = doc.data()["timeHolder"];
       timer.text(`You have ${time} seconds left`);
     });
@@ -272,7 +279,15 @@ function listenForNewRound(roundID) {
   db.collection(gameID)
     .doc(roundID)
     .onSnapshot(function(doc) {
-      console.log("[DEBUG] listenForNewRound ::", JSON.stringify(doc.data()));
+      if (!doc.data()) {
+        return;
+      }
+      console.log(
+        "[DEBUG] listenForNewRound :: doc.data() ",
+        JSON.stringify(doc.data())
+      );
+      console.log("[DEBUG] listenForNewRound :: gameID: ", gameID);
+      console.log("[DEBUG] listenForNewRound :: roundID: ", roundID);
       if (doc.data()["winningResponse"]) {
         instantiateRound();
       }
@@ -295,7 +310,6 @@ function definePlayersArray() {
 
 function runRoundAsJudge(roundID) {
   setRandomPrompt(roundID);
-  countDown(roundID);
 }
 // Function for setting the prompt in the database
 
@@ -303,7 +317,6 @@ function setRandomPrompt(roundID) {
   // API using Card cast, find a deck code and input below https://www.cardcastgame.com/browse?nsfw=1
   var deckId = "8BQAD";
   var queryURL = "https://api.cardcastgame.com/v1/decks/" + deckId + "/cards";
-  console.log("StEP1");
   $.ajax({
     url: queryURL,
     method: "GET"
@@ -311,8 +324,25 @@ function setRandomPrompt(roundID) {
     let cardsArray = response.calls;
     let randomCard =
       cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"][0];
+    if (randomCard === "") {
+      console.log("[DEBUG] stepped into if statement");
+      $.ajax({
+        url: queryURL,
+        method: "GET"
+      }).then(function(response) {
+        cardsArray = response.calls;
+        randomCard =
+          cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"][0];
+        let cardData = {};
+        cardData["prompt"] = randomCard;
+        writeDataMerge(gameID, roundID, cardData);
+        $(".container").html("");
+        $(".container").html(
+          `<p class = "judge-countdown-holder"> Time Remaining: </p><p class = 'judge-prompt'>${randomCard}</p>`
+        );
+      });
+    }
     console.log("[DEBUG] randomCard: " + randomCard);
-
     let cardData = {};
     cardData["prompt"] = randomCard;
     writeDataMerge(gameID, roundID, cardData);
@@ -320,6 +350,7 @@ function setRandomPrompt(roundID) {
     $(".container").html(
       `<p class = "judge-countdown-holder"> Time Remaining: </p><p class = 'judge-prompt'>${randomCard}</p>`
     );
+    countDown(roundID);
   });
 }
 
@@ -351,9 +382,9 @@ function displayCardsToJudge(roundID) {
       let roundResponseObject = doc.data();
       for (let i = 0; i < playersArray.length; i++) {
         if (roundResponseObject[playersArray[i]]) {
-          let playerResponseElement = `<p value = ${playersArray[i]}> ${
-            roundResponseObject[playersArray[i]]
-          }</p>`;
+          let playerResponseElement = `<p class = "player-response-holder text-center py-3 mx-2" value = ${
+            playersArray[i]
+          }> ${roundResponseObject[playersArray[i]]}</p>`;
 
           selectionPHolder += playerResponseElement;
         }
@@ -379,24 +410,22 @@ function listenForJudgesSelection(roundID) {
     winnerAnswer["winningResponse"] = event.target.innerText;
 
     // Increase the round counter in firebase
-    incrementRoundCounter();
-    // Change the judge variable in firebase
-    changeJudge(event.target.attributes.value.value);
-    writeDataMerge(gameID, roundID, winnerAnswer);
-    instantiateRound();
-  });
-}
 
-function incrementRoundCounter() {
-  db.collection(gameID)
-    .doc("logistics")
-    .get()
-    .then(function(doc) {
-      let roundCountHolder = doc.data()["roundCounter"];
-      let roundCount = {};
-      roundCount["roundCounter"] = roundCountHolder + 1;
-      writeDataMerge(gameID, "logistics", roundCount);
-    });
+    db.collection(gameID)
+      .doc("logistics")
+      .get()
+      .then(function(doc) {
+        let roundCountHolder = doc.data()["roundCounter"];
+        let roundCount = {};
+        roundCount["roundCounter"] = roundCountHolder + 1;
+        writeDataMerge(gameID, "logistics", roundCount);
+        // Change the judge variable in firebase
+        changeJudge(event.target.attributes.value.value);
+        writeDataMerge(gameID, roundID, winnerAnswer);
+
+        instantiateRound();
+      });
+  });
 }
 
 function changeJudge(newJudge) {
