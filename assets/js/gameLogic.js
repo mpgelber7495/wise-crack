@@ -401,7 +401,7 @@ function displayCardsToJudge(roundID) {
       listenForJudgesSelection(roundID);
     });
 }
-
+//function that automatically moves to next prompt if user does not answer question
 function noAnswers(roundID) {
   db.collection(gameID)
     .doc(roundID)
