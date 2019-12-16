@@ -328,26 +328,8 @@ function setRandomPrompt(roundID) {
     let randomCard =
       cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"][0];
     if (randomCard === "") {
-      console.log("[DEBUG] stepped into if statement");
-      $.ajax({
-        url: queryURL,
-        method: "GET"
-      }).then(function(response) {
-        cardsArray = response.calls;
-        randomCard =
-          cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"][0];
-        let cardData = {};
-        cardData["prompt"] = randomCard;
-        writeDataMerge(gameID, roundID, cardData);
-        $(".container").html("");
-        $(".container").html(
-          `<div class="card" style="width: 18rem;">
-          <div class="card-body">
-          <p class = 'judge-prompt'>${randomCard}</p>
-          <p class = "judge-countdown-holder"> Time Remaining: </p>
-          </div>`
-        );
-      });
+      setRandomPrompt(roundID);
+      return;
     }
     console.log("[DEBUG] randomCard: " + randomCard);
     let cardData = {};
