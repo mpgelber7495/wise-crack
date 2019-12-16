@@ -367,7 +367,7 @@ function setRandomPrompt(roundID) {
 
 // Function for counting down from 40 seconds
 function countDown(roundID) {
-  let timeHolder = 10;
+  let timeHolder = 15;
   var counter = setInterval(function() {
     timeHolder--;
     writeDataMerge(gameID, "logistics", { timeHolder: timeHolder });
