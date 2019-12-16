@@ -377,7 +377,7 @@ function displayCardsToJudge(roundID) {
         if (roundResponseObject[playersArray[i]]) {
           let playerResponseElement = `<p class = "player-response-holder text-center py-3 mx-2" value = ${
             playersArray[i]
-          }> ${roundResponseObject[playersArray[i]]}</>`;
+          }> ${roundResponseObject[playersArray[i]]}</p>`;
 
           selectionPHolder += playerResponseElement;
         }
