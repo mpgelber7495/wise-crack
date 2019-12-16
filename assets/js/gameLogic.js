@@ -223,9 +223,7 @@ function runGameAsPlayer(nickname, roundID) {
     unsubPlayerJoin();
   } catch (err) {}
   $(".container").empty();
-  $(
-    ".container"
-  )[0].innerHTML += `<div class="card" style="width: 18rem;">
+  $(".container")[0].innerHTML += `<div class="card" style="width: 18rem;">
   <div class="card-body">
   <div class="row prompt-row d-flex justify-content-center">
   </div></div><div class="d-flex justify-content-center row timer-row"></div><div class=" d-flex justify-content-center row input-row"></div>`;
@@ -245,7 +243,9 @@ function runGameAsPlayer(nickname, roundID) {
   const labelAnswer = $(
     '<label for="answer-input">Enter your answer!</label> '
   );
-  const playerAnswer = $('<input id="answer-input" placeholder="Enter here" type="text"/> </br>');
+  const playerAnswer = $(
+    '<input id="answer-input" placeholder="Enter here" type="text"/> </br>'
+  );
   const submitAnswer = $(
     '<input type="button" class ="btn" id="submit-player-card" value="Submit answer!"/>'
   );
@@ -375,6 +375,10 @@ function displayCardsToJudge(roundID) {
       let roundResponseObject = doc.data();
       for (let i = 0; i < playersArray.length; i++) {
         if (roundResponseObject[playersArray[i]]) {
+          console.log(
+            "[DEBUG] round response Object" +
+              roundResponseObject[playersArray[i]]
+          );
           let playerResponseElement = `<p class = "player-response-holder text-center py-3 mx-2" value = ${
             playersArray[i]
           }> ${roundResponseObject[playersArray[i]]}</>`;
@@ -391,10 +395,28 @@ function displayCardsToJudge(roundID) {
 
       $(".container").html(roundSelectionElement);
       // Placing the click listener here because it must occur sequentially once the objects have actually been added to the HTML
+      noAnswers(roundID);
       listenForJudgesSelection(roundID);
     });
 }
-
+//function that automatically moves to next prompt if user does not answer question
+function noAnswers(roundID) {
+  db.collection(gameID)
+    .doc(roundID)
+    .get()
+    .then(function(doc) {
+      let numUnanswered = 0;
+      let roundResponseObject = doc.data();
+      for (let i = 0; i < playersArray.length; i++) {
+        if (!roundResponseObject[playersArray[i]]) {
+          numUnanswered++;
+          if (numUnanswered === playersArray.length) {
+            instantiateRound();
+          }
+        }
+      }
+    });
+}
 function listenForJudgesSelection(roundID) {
   $(".round-selection-container").click(function(event) {
     // Write the winning player to firebase
