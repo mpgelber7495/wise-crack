@@ -18,7 +18,7 @@ function writeDataMergeWhipped(collection, doc, data) {
 
 $(".container")[0].innerHTML += `
 <div class="col-12 mt-4 mb-4 create-row d-flex justify-content-center">
-<p class = "game-description"> Welcome to <span>WiseCrack!</span> <br> With this funky game, you and your friends will be given prompts and have to creatively enter your own responses!</p>
+<p class = "game-description"> Welcome to <span>Wise-Crack!</span> <br> With this funky game, you and your friends will be given prompts and have to creatively enter your own responses!</p>
 </div>
 <div class="col-12 mt-4 mb-4 create-row d-flex justify-content-center">
   <button type="button" class="btn btn-secondary btn-lg create-game-btn">
@@ -223,9 +223,10 @@ function runGameAsPlayer(nickname, roundID) {
     unsubPlayerJoin();
   } catch (err) {}
   $(".container").empty();
-  $(
-    ".container"
-  )[0].innerHTML += `<div class="row prompt-row d-flex justify-content-center"></div><div class="d-flex justify-content-center row timer-row"></div><div class=" d-flex justify-content-center row input-row"></div>`;
+  $(".container")[0].innerHTML += `<div class="card" style="width: 18rem;">
+  <div class="card-body">
+  <div class="row prompt-row d-flex justify-content-center">
+  </div></div><div class="d-flex justify-content-center row timer-row"></div><div class=" d-flex justify-content-center row input-row"></div>`;
   const gameContainer = $(".container");
   let prompt = "";
   db.collection(gameID)
@@ -242,9 +243,11 @@ function runGameAsPlayer(nickname, roundID) {
   const labelAnswer = $(
     '<label for="answer-input">Enter your answer!</label> '
   );
-  const playerAnswer = $('<input id="answer-input" type="text"/> </br>');
+  const playerAnswer = $(
+    '<input id="answer-input" placeholder="Enter here" type="text"/> </br>'
+  );
   const submitAnswer = $(
-    '<input type="button" class ="btn" id="submit" value="Submit answer!"/>'
+    '<input type="button" class ="btn" id="submit-player-card" value="Submit answer!"/>'
   );
   const timer = $('<h5 id="timer" class ="mb-2"></h5>');
   $(".timer-row").html(timer);
@@ -325,22 +328,8 @@ function setRandomPrompt(roundID) {
     let randomCard =
       cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"][0];
     if (randomCard === "") {
-      console.log("[DEBUG] stepped into if statement");
-      $.ajax({
-        url: queryURL,
-        method: "GET"
-      }).then(function(response) {
-        cardsArray = response.calls;
-        randomCard =
-          cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"][0];
-        let cardData = {};
-        cardData["prompt"] = randomCard;
-        writeDataMerge(gameID, roundID, cardData);
-        $(".container").html("");
-        $(".container").html(
-          `<p class = "judge-countdown-holder"> Time Remaining: </p><p class = 'judge-prompt'>${randomCard}</p>`
-        );
-      });
+      setRandomPrompt(roundID);
+      return;
     }
     console.log("[DEBUG] randomCard: " + randomCard);
     let cardData = {};
@@ -348,7 +337,11 @@ function setRandomPrompt(roundID) {
     writeDataMerge(gameID, roundID, cardData);
     $(".container").html("");
     $(".container").html(
-      `<p class = "judge-countdown-holder"> Time Remaining: </p><p class = 'judge-prompt'>${randomCard}</p>`
+      `<div class="card" style="width: 18rem;">
+      <div class="card-body">
+      <p class = 'judge-prompt'>${randomCard}</p><p class = "judge-countdown-holder"> Time Remaining: </p>
+      </div>
+    </div>`
     );
     countDown(roundID);
   });
@@ -388,16 +381,21 @@ function displayCardsToJudge(roundID) {
           );
           let playerResponseElement = `<p class = "player-response-holder text-center py-3 mx-2" value = ${
             playersArray[i]
-          }> ${roundResponseObject[playersArray[i]]}</p>`;
+          }> ${roundResponseObject[playersArray[i]]}</>`;
+
           selectionPHolder += playerResponseElement;
         }
       }
-      noAnswers(roundID);
-      let roundSelectionElement = `<div class = "round-selection-container"> <h5 class = "show-judge-prompt-holder">${
-        doc.data()["prompt"]
-      }:</h5>${selectionPHolder} </div>`;
+      let roundSelectionElement = `<div class = "round-selection-container"> <div class="card" style="width: 18rem;">
+          <div class="card-body">
+          <p class = "show-judge-prompt-holder">${
+            doc.data()["prompt"]
+          }:</p>${selectionPHolder} 
+          </div></div>`;
+
       $(".container").html(roundSelectionElement);
       // Placing the click listener here because it must occur sequentially once the objects have actually been added to the HTML
+      noAnswers(roundID);
       listenForJudgesSelection(roundID);
     });
 }

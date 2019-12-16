@@ -6,7 +6,7 @@ body {
   background-image: url("../images/ticks.png");
   background-repeat: no-repeat;
   background-size: cover;
-  font-family: "Lato", sans-serif;
+  font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
   font-size: 17px;
 }
 
@@ -25,7 +25,7 @@ h1 {
   margin-bottom: 40px;
   text-align: center;
   font-size: 4.2em;
-  color: #2d4ba6;
+  color: black;
   text-shadow: 3px 2px 4px darkgrey;
   font-family: "Shojumaru", cursive;
 }
@@ -43,33 +43,40 @@ h1 {
   cursor: pointer;
 }
 
-#submit {
-  padding: 8px;
-  color: white;
-}
 
-#answer-input {
-  padding: 6px;
-}
+#submit-player-card {
+  display: block;
+    margin: 0 auto;
+    margin-top:10px;
+    padding: 2px;
+    background-color: #262626;
+    color: white;
+    cursor: pointer;
+  }
+
+  #submit-player-card:hover {
+    color: white;
+    background-color: #963333;
+    }
 
 .btn:hover,
 #submit:hover {
   color: white;
-  background-color: #ff0000;
+  background-color: #963333;
 }
 
 label {
   font-size: 1.3em;
   text-align: center;
-  color: #100950;
+  color: black;
   font-weight: bold;
 }
 
 .judge-countdown-holder {
-  margin-top: 15px;
+  margin-top: 20px;
   font-size: 1.3em;
   text-align: center;
-  color: #100950;
+  color: white;
   font-weight: bold;
 }
 
@@ -78,15 +85,33 @@ label {
   font-size: 15px;
 }
 
-.show-judge-prompt-holder,
-.judge-prompt,
 .game-id-holder,
 h5,
 p {
   margin-top: 15px;
   font-size: 1.3em;
-  color: #100950;
+  color: black;
   font-weight: bold;
+}
+
+.judge-prompt, .show-judge-prompt-holder {
+  color: white;
+  font-size: 1.3em;
+  font-weight: bold;
+  
+
+
+
+}
+
+
+
+ #answer-input {
+  margin: auto;
+  padding: 6px;
+  display: block;
+  margin: 0 auto;
+  margin-top: 30px;
 }
 
 .ready-btn-join {
@@ -101,7 +126,7 @@ label {
 #nicknameInput,
 #gameIDInput {
   border: solid 1px #262626;
-  color: #2d4ba6;
+  color:#963333;
   font-size: 15px;
 }
 
@@ -109,7 +134,7 @@ label {
 p {
   margin: 10px 0;
   padding: 10px 0;
-  color: #2d4ba6;
+  color:#963333;
 }
 
 .container {
@@ -125,12 +150,12 @@ p {
 }
 
 #timer {
-  color: #ff0000;
+  color: white;
   font-size: 17px;
 }
 
 .prompt-row {
-  color: #2d4ba6;
+  color: white;
 }
 
 form {
@@ -139,10 +164,18 @@ form {
 }
 
 span {
-  font-family: "Shojumaru", cursive;
-  color: #ff0000;
+  font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  color: #963333;
 }
 
-h5 {
-  color: black;
+
+
+.card {
+  padding: 5px;
+  margin: auto;
+  border-radius: 3px;
+  background-color: rgb(0, 0, 0);
+  box-shadow: 5px rgb(255, 255, 255);
+  border-width: 4px;
+  border: solid;
 }
