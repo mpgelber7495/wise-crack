@@ -8,7 +8,7 @@ function writeDataMerge(collection, doc, data) {
 }
 
 function writeDataMergeWhipped(collection, doc, data) {
-  console.log("[DEBUG] writeDataMerge ::", data);
+  // console.log("[DEBUG] writeDataMerge ::", data);
   db.collection(collection)
     .doc(doc)
     .set(data, { merge: true });
@@ -183,7 +183,7 @@ function renderJudgeWaitScreen(inputGameID) {
 // TO-DO: Instantiate Round
 // ------------------------------------------------
 function instantiateRound() {
-  console.log("[DEBUG] instantiateRound");
+  // console.log("[DEBUG] instantiateRound");
   definePlayersArray();
   db.collection(gameID)
     .doc("logistics")
@@ -191,12 +191,12 @@ function instantiateRound() {
     .then(function(doc) {
       let judge = doc.data()["judge"];
       let roundCount = doc.data()["roundCounter"];
-      console.log("[DEBUG]: instantiate Round roundCount: " + roundCount);
+      // console.log("[DEBUG]: instantiate Round roundCount: " + roundCount);
       let newRoundID = "round" + roundCount;
-      console.log(
-        "[DEBUG] instantiateRound :: creating new round ::",
-        newRoundID
-      );
+      // console.log(
+      //   "[DEBUG] instantiateRound :: creating new round ::",
+      //   newRoundID
+      // );
       if (judge === nickname) {
         writeDataMerge(gameID, "logistics", { gameStarted: "true" });
         let data = {};
@@ -310,7 +310,6 @@ function definePlayersArray() {
 
 function runRoundAsJudge(roundID) {
   setRandomPrompt(roundID);
-  countDown(roundID);
 }
 // Function for setting the prompt in the database
 
@@ -318,7 +317,6 @@ function setRandomPrompt(roundID) {
   // API using Card cast, find a deck code and input below https://www.cardcastgame.com/browse?nsfw=1
   var deckId = "8BQAD";
   var queryURL = "https://api.cardcastgame.com/v1/decks/" + deckId + "/cards";
-  console.log("StEP1");
   $.ajax({
     url: queryURL,
     method: "GET"
@@ -326,8 +324,25 @@ function setRandomPrompt(roundID) {
     let cardsArray = response.calls;
     let randomCard =
       cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"][0];
+    if (randomCard === "") {
+      console.log("[DEBUG] stepped into if statement");
+      $.ajax({
+        url: queryURL,
+        method: "GET"
+      }).then(function(response) {
+        cardsArray = response.calls;
+        randomCard =
+          cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"][0];
+        let cardData = {};
+        cardData["prompt"] = randomCard;
+        writeDataMerge(gameID, roundID, cardData);
+        $(".container").html("");
+        $(".container").html(
+          `<p class = "judge-countdown-holder"> Time Remaining: </p><p class = 'judge-prompt'>${randomCard}</p>`
+        );
+      });
+    }
     console.log("[DEBUG] randomCard: " + randomCard);
-
     let cardData = {};
     cardData["prompt"] = randomCard;
     writeDataMerge(gameID, roundID, cardData);
@@ -335,6 +350,7 @@ function setRandomPrompt(roundID) {
     $(".container").html(
       `<p class = "judge-countdown-holder"> Time Remaining: </p><p class = 'judge-prompt'>${randomCard}</p>`
     );
+    countDown(roundID);
   });
 }
 
