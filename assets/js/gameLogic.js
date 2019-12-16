@@ -382,23 +382,42 @@ function displayCardsToJudge(roundID) {
       let roundResponseObject = doc.data();
       for (let i = 0; i < playersArray.length; i++) {
         if (roundResponseObject[playersArray[i]]) {
+          console.log(
+            "[DEBUG] round response Object" +
+              roundResponseObject[playersArray[i]]
+          );
           let playerResponseElement = `<p class = "player-response-holder text-center py-3 mx-2" value = ${
             playersArray[i]
           }> ${roundResponseObject[playersArray[i]]}</p>`;
-
           selectionPHolder += playerResponseElement;
         }
       }
+      noAnswers(roundID);
       let roundSelectionElement = `<div class = "round-selection-container"> <h5 class = "show-judge-prompt-holder">${
         doc.data()["prompt"]
       }:</h5>${selectionPHolder} </div>`;
-
       $(".container").html(roundSelectionElement);
       // Placing the click listener here because it must occur sequentially once the objects have actually been added to the HTML
       listenForJudgesSelection(roundID);
     });
 }
 
+function noAnswers(roundID) {
+  db.collection(gameID)
+    .doc(roundID)
+    .get()
+    .then(function(doc) {
+      let numUnanswered = 0;
+      let roundResponseObject = doc.data();
+      console.log(roundResponseObject[playersArray].length);
+      for (let i = 0; i < roundResponseObject[playersArray].length; i++) {
+        if (roundResponseObject[playersArray][i] === "") {
+          numUnanswered++;
+          console.log(numUnanswered);
+        }
+      }
+    });
+}
 function listenForJudgesSelection(roundID) {
   $(".round-selection-container").click(function(event) {
     // Write the winning player to firebase
