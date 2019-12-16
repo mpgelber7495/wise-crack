@@ -409,11 +409,12 @@ function noAnswers(roundID) {
     .then(function(doc) {
       let numUnanswered = 0;
       let roundResponseObject = doc.data();
-      console.log(roundResponseObject[playersArray].length);
-      for (let i = 0; i < roundResponseObject[playersArray].length; i++) {
-        if (roundResponseObject[playersArray][i] === "") {
+      for (let i = 0; i < playersArray.length; i++) {
+        if (!roundResponseObject[playersArray[i]]) {
           numUnanswered++;
-          console.log(numUnanswered);
+          if (numUnanswered === playersArray.length) {
+            instantiateRound();
+          }
         }
       }
     });
