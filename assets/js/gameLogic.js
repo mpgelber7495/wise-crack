@@ -131,13 +131,14 @@ function pushPlayersToDB(gameID, nicknameInput) {
       players: firebase.firestore.FieldValue.arrayUnion(nicknameInput)
     });
 }
-
+let unsubPlayerWaitScreen;
 //Wait Screen Function
 // FIX BUG - make this hidden once the round has begun
 function renderPlayerWaitScreen(inputGameID) {
   $(".container").html("");
   let players;
-  db.collection(inputGameID)
+  unsubPlayerWaitScreen = db
+    .collection(inputGameID)
     .doc("logistics")
     .onSnapshot(function(doc) {
       if (!doc.data()) {
@@ -163,11 +164,12 @@ function renderPlayerWaitScreen(inputGameID) {
 function dummyInstantiate() {
   instantiateRound();
 }
-
+let unsubJudgeWaitScreen;
 function renderJudgeWaitScreen(inputGameID) {
   $(".container").html("");
   let players;
-  db.collection(inputGameID)
+  unsubJudgeWaitScreen = db
+    .collection(inputGameID)
     .doc("logistics")
     .onSnapshot(function(doc) {
       if (doc.data().gameStarted === false) {
@@ -184,6 +186,18 @@ function renderJudgeWaitScreen(inputGameID) {
 // ------------------------------------------------
 function instantiateRound() {
   // console.log("[DEBUG] instantiateRound");
+  if (unsubPlayerWaitScreen) {
+    // Kill the snapshot listener on the player wait screen
+    unsubPlayerWaitScreen();
+  }
+  if (unsubJudgeWaitScreen) {
+    // Kill the judge wait screen listener if it exists
+    unsubJudgeWaitScreen();
+  }
+  if (unsubListenForNewRound) {
+    // Kill the new round listener snapshot if it exists
+    unsubListenForNewRound();
+  }
   definePlayersArray();
   db.collection(gameID)
     .doc("logistics")
@@ -218,6 +232,8 @@ function instantiateRound() {
 
 const collectiondRef = db.collection("Game123");
 
+let unsubPromptListenerSnapshot;
+let unsubTimeHolderListenerSnapshot;
 function runGameAsPlayer(nickname, roundID) {
   try {
     unsubPlayerJoin();
@@ -229,7 +245,8 @@ function runGameAsPlayer(nickname, roundID) {
   </div></div><div class="d-flex justify-content-center row timer-row"></div><div class=" d-flex justify-content-center row input-row"></div>`;
   const gameContainer = $(".container");
   let prompt = "";
-  db.collection(gameID)
+  unsubPromptListenerSnapshot = db
+    .collection(gameID)
     .doc(roundID)
     .onSnapshot(function(doc) {
       if (!doc.data()) {
@@ -269,7 +286,8 @@ function runGameAsPlayer(nickname, roundID) {
     console.log("YA GOT EMPTIED!!!");
     console.log("[DEBUG]: Time on 0");
   }
-  db.collection(gameID)
+  unsubTimeHolderListenerSnapshot = db
+    .collection(gameID)
     .doc("logistics")
     .onSnapshot(function(doc) {
       if (!doc.data()) {
@@ -290,9 +308,16 @@ function runGameAsPlayer(nickname, roundID) {
   submitAnswer.on("click", () => {
     event.preventDefault();
     let answer = playerAnswer.val();
+    if (unsubPromptListenerSnapshot) {
+      // Kill prompt snapshot listener
+      unsubPromptListenerSnapshot();
+      // Kill timeHolder snapshot listener
+      unsubTimeHolderListenerSnapshot();
+    }
     if (answer === "") {
       gameContainer.text("No answer");
     }
+
     //send answer to the firestore
     let data = {};
     data[nickname] = answer;
@@ -301,8 +326,11 @@ function runGameAsPlayer(nickname, roundID) {
     listenForNewRound(roundID);
   });
 }
+
+let unsubListenForNewRound;
 function listenForNewRound(roundID) {
-  db.collection(gameID)
+  unsubListenForNewRound = db
+    .collection(gameID)
     .doc(roundID)
     .onSnapshot(function(doc) {
       if (!doc.data()) {
@@ -465,7 +493,6 @@ function listenForJudgesSelection(roundID) {
         changeJudge(event.target.attributes.value.value);
         writeDataMerge(gameID, "logistics", { timHolder: centralTimeHolder });
         writeDataMerge(gameID, roundID, winnerAnswer);
-
         instantiateRound();
       });
   });
