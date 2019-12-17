@@ -1,5 +1,5 @@
 var db = firebase.firestore();
-
+let centralTimeHolder = 15;
 function writeDataMerge(collection, doc, data) {
   console.log("[DEBUG] writeDataMerge ::", data);
   db.collection(collection)
@@ -58,7 +58,7 @@ $(".container").on("click", ".create-game-btn", function(event) {
       judge: null,
       playerCount: 0,
       roundCounter: 1,
-      timeHolder: 0,
+      timeHolder: centralTimeHolder,
       players: [],
       gameStarted: false
     });
@@ -251,16 +251,39 @@ function runGameAsPlayer(nickname, roundID) {
   );
   const timer = $('<h5 id="timer" class ="mb-2"></h5>');
   $(".timer-row").html(timer);
+  function dummyListenForNewRound(roundID) {
+    listenForNewRound(roundID);
+  }
 
+  function respondToNoAnswer(doc) {
+    // If no answer is inputted, start listening for new round
+    let roundID = "round" + doc.data()["roundCounter"];
+    // Listen for the new round
+    dummyListenForNewRound(roundID);
+    dummyListenForNewRound = function() {};
+    // DIDN'T ADD THE BELOW CODE AS IT BREAKS THE GAME, ONCE IT'S REMOVED IT'S NOT REPLACED
+    // Clear out the HTML
+    // $(".prompt-row").text("Uh oh - you ran out of time!");
+    // $("#answer-input").remove();
+    // $("#submit-player-card").remove();
+    console.log("YA GOT EMPTIED!!!");
+    console.log("[DEBUG]: Time on 0");
+  }
   db.collection(gameID)
     .doc("logistics")
     .onSnapshot(function(doc) {
       if (!doc.data()) {
         return;
       }
+
       var time = doc.data()["timeHolder"];
       timer.text(`You have ${time} seconds left`);
+      if (time === 0) {
+        respondToNoAnswer(doc);
+        respondToNoAnswer = function() {};
+      }
     });
+
   $(".input-row").html(labelAnswer);
   gameContainer.append(playerAnswer);
   gameContainer.append(submitAnswer);
@@ -349,9 +372,10 @@ function setRandomPrompt(roundID) {
 
 // Function for counting down from 40 seconds
 function countDown(roundID) {
-  let timeHolder = 15;
+  let timeHolder = centralTimeHolder;
   var counter = setInterval(function() {
     timeHolder--;
+    console.log("[DEBUG]: Time Holder :" + timeHolder);
     writeDataMerge(gameID, "logistics", { timeHolder: timeHolder });
     $(".judge-countdown-holder").text(` Time Remaining: ${timeHolder}`);
     if (timeHolder < 1) {
@@ -439,6 +463,7 @@ function listenForJudgesSelection(roundID) {
         writeDataMerge(gameID, "logistics", roundCount);
         // Change the judge variable in firebase
         changeJudge(event.target.attributes.value.value);
+        writeDataMerge(gameID, "logistics", { timHolder: centralTimeHolder });
         writeDataMerge(gameID, roundID, winnerAnswer);
 
         instantiateRound();
