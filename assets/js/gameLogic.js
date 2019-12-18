@@ -523,7 +523,7 @@ function listenForJudgesSelection(roundID) {
         writeDataMerge(gameID, "logistics", roundCount);
         // Change the judge variable in firebase
         changeJudge(event.target.attributes.value.value);
-        writeDataMerge(gameID, "logistics", { timHolder: centralTimeHolder });
+        writeDataMerge(gameID, "logistics", { timeHolder: centralTimeHolder });
         writeDataMerge(gameID, roundID, winnerAnswer);
         showRoundSummaryScreen(roundID);
         setTimeout(instantiateRound, 3000);
