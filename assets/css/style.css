@@ -10,7 +10,7 @@ body {
   font-size: 17px;
 }
 
-.col-12 {
+.col-6 {
   padding: 15px;
   margin: -10px auto;
   border-radius: 0;
@@ -24,12 +24,21 @@ h1 {
   margin-top: 20px;
   margin-bottom: 40px;
   text-align: center;
-  font-size: 4.2em;
+  font-size: 4vw;
   color: black;
   text-shadow: 3px 2px 4px darkgrey;
-  font-family: "Shojumaru", cursive;
+  font-family: 'Sonsie One', cursive;
 }
 
+.player-item {
+  color: black;
+  margin-top: 15px;
+  margin-bottom: 15px;
+ 
+  font-size: .9em;
+
+  font-weight: bold;
+}
 .game-description {
   font-size: 20px;
   text-align: center;
@@ -48,7 +57,7 @@ h1 {
   display: block;
     margin: 0 auto;
     margin-top:10px;
-    padding: 2px;
+    /* padding: 2px; */
     background-color: #262626;
     color: white;
     cursor: pointer;
@@ -64,17 +73,26 @@ h1 {
   color: white;
   background-color: #963333;
 }
-
+.container {
+  padding: 10px;
+  margin-top: 5px;
+  font-size: 1.6em;
+  color: black;
+  font-weight: bold;
+  display: block;
+  margin: 0 auto;
+  text-align: center;
+}
 label {
-  font-size: 1.3em;
+  font-size: .9em;
   text-align: center;
   color: black;
   font-weight: bold;
 }
 
-.judge-countdown-holder {
+.judge-countdown-holder, #timer {
   margin-top: 20px;
-  font-size: 1.3em;
+  font-size: .9em;
   text-align: center;
   color: white;
   font-weight: bold;
@@ -87,16 +105,16 @@ label {
 
 .game-id-holder,
 h5,
-p {
+p, .prompt-row {
   margin-top: 15px;
-  font-size: 1.3em;
+  font-size: .9em;
   color: black;
   font-weight: bold;
 }
 
 .judge-prompt, .show-judge-prompt-holder {
   color: white;
-  font-size: 1.3em;
+  font-size: .9em;
   font-weight: bold;
   
 
@@ -108,7 +126,7 @@ p {
 
  #answer-input {
   margin: auto;
-  padding: 6px;
+  padding: 3px;
   display: block;
   margin: 0 auto;
   margin-top: 30px;
@@ -126,7 +144,7 @@ label {
 #nicknameInput,
 #gameIDInput {
   border: solid 1px #262626;
-  color:#963333;
+  color:black;
   font-size: 15px;
 }
 
@@ -134,12 +152,10 @@ label {
 p {
   margin: 10px 0;
   padding: 10px 0;
-  color:#963333;
+  color:black;
 }
 
-.container {
-  padding: 10px;
-}
+
 
 .row {
   display: flex;
@@ -161,11 +177,13 @@ p {
 form {
   background-color: white;
   padding: 20px;
+  max-width: 50%;
+  margin: 0 auto;
 }
 
 span {
   font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
-  color: #963333;
+  color: black;
 }
 
 
@@ -179,3 +197,26 @@ span {
   border-width: 4px;
   border: solid;
 }
+
+@media only screen and (max-width: 574px) {
+  h1 {
+    font-size: 10vw;
+    margin-bottom: 15px;
+  }
+  .col-6 {
+    max-width: 80%;
+
+  }
+
+  form {
+    background-color: rgb(0,0,0,);
+    padding: 20px;
+    max-width: 80%;
+    margin: 0 auto;
+  }
+}
+
+
+
+
+
