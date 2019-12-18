@@ -535,8 +535,9 @@ function showRoundSummaryScreen(roundID) {
   <div class="card-body">
   <div class="row prompt-row d-flex justify-content-center">
   </div></div><div class="d-flex justify-content-center row timer-row"></div><div class=" d-flex justify-content-center row input-row"></div>`;
-  const gameContainer = $(".container");
   let winnerInfo = "";
+  let otherResponses = "";
+
   db.collection(gameID)
     .doc(roundID)
     .get()
@@ -545,5 +546,13 @@ function showRoundSummaryScreen(roundID) {
         doc.data()["winningResponse"]
       }`;
       $(".prompt-row").html(winnerInfo);
+      for (let i = 0; i < playersArray.length; i++) {
+        if (doc.data()[playersArray[i]]) {
+          otherResponses = `<div class="row"><p class = "player-response-holder text-center py-3 mx-2" value = ${
+            playersArray[i]
+          }> ${doc.data()[playersArray[i]]}</p></div>`;
+          $(".timer-row").append(otherResponses);
+        }
+      }
     });
 }
