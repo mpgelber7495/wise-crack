@@ -1,5 +1,5 @@
 var db = firebase.firestore();
-
+let centralTimeHolder = 15;
 function writeDataMerge(collection, doc, data) {
   console.log("[DEBUG] writeDataMerge ::", data);
   db.collection(collection)
@@ -18,7 +18,7 @@ function writeDataMergeWhipped(collection, doc, data) {
 
 $(".container")[0].innerHTML += `
 <div class="col-12 mt-4 mb-4 create-row d-flex justify-content-center">
-<p class = "game-description"> Welcome to <span>WiseCrack!</span> <br> With this funky game, you and your friends will be given prompts and have to creatively enter your own responses!</p>
+<p class = "game-description"> Welcome to <span>Wise-Crack!</span> <br> With this funky game, you and your friends will be given prompts and have to creatively enter your own responses!</p>
 </div>
 <div class="col-12 mt-4 mb-4 create-row d-flex justify-content-center">
   <button type="button" class="btn btn-secondary btn-lg create-game-btn">
@@ -58,7 +58,7 @@ $(".container").on("click", ".create-game-btn", function(event) {
       judge: null,
       playerCount: 0,
       roundCounter: 1,
-      timeHolder: 0,
+      timeHolder: centralTimeHolder,
       players: [],
       gameStarted: false
     });
@@ -131,13 +131,14 @@ function pushPlayersToDB(gameID, nicknameInput) {
       players: firebase.firestore.FieldValue.arrayUnion(nicknameInput)
     });
 }
-
+let unsubPlayerWaitScreen;
 //Wait Screen Function
 // FIX BUG - make this hidden once the round has begun
 function renderPlayerWaitScreen(inputGameID) {
   $(".container").html("");
   let players;
-  db.collection(inputGameID)
+  unsubPlayerWaitScreen = db
+    .collection(inputGameID)
     .doc("logistics")
     .onSnapshot(function(doc) {
       if (!doc.data()) {
@@ -163,11 +164,12 @@ function renderPlayerWaitScreen(inputGameID) {
 function dummyInstantiate() {
   instantiateRound();
 }
-
+let unsubJudgeWaitScreen;
 function renderJudgeWaitScreen(inputGameID) {
   $(".container").html("");
   let players;
-  db.collection(inputGameID)
+  unsubJudgeWaitScreen = db
+    .collection(inputGameID)
     .doc("logistics")
     .onSnapshot(function(doc) {
       if (doc.data().gameStarted === false) {
@@ -184,6 +186,18 @@ function renderJudgeWaitScreen(inputGameID) {
 // ------------------------------------------------
 function instantiateRound() {
   // console.log("[DEBUG] instantiateRound");
+  if (unsubPlayerWaitScreen) {
+    // Kill the snapshot listener on the player wait screen
+    unsubPlayerWaitScreen();
+  }
+  if (unsubJudgeWaitScreen) {
+    // Kill the judge wait screen listener if it exists
+    unsubJudgeWaitScreen();
+  }
+  if (unsubListenForNewRound) {
+    // Kill the new round listener snapshot if it exists
+    unsubListenForNewRound();
+  }
   definePlayersArray();
   db.collection(gameID)
     .doc("logistics")
@@ -218,17 +232,21 @@ function instantiateRound() {
 
 const collectiondRef = db.collection("Game123");
 
+let unsubPromptListenerSnapshot;
+let unsubTimeHolderListenerSnapshot;
 function runGameAsPlayer(nickname, roundID) {
   try {
     unsubPlayerJoin();
   } catch (err) {}
   $(".container").empty();
-  $(
-    ".container"
-  )[0].innerHTML += `<div class="row prompt-row d-flex justify-content-center"></div><div class="d-flex justify-content-center row timer-row"></div><div class=" d-flex justify-content-center row input-row"></div>`;
+  $(".container")[0].innerHTML += `<div class="card" style="width: 18rem;">
+  <div class="card-body">
+  <div class="row prompt-row d-flex justify-content-center">
+  </div></div><div class="d-flex justify-content-center row timer-row"></div><div class=" d-flex justify-content-center row input-row"></div>`;
   const gameContainer = $(".container");
   let prompt = "";
-  db.collection(gameID)
+  unsubPromptListenerSnapshot = db
+    .collection(gameID)
     .doc(roundID)
     .onSnapshot(function(doc) {
       if (!doc.data()) {
@@ -242,31 +260,64 @@ function runGameAsPlayer(nickname, roundID) {
   const labelAnswer = $(
     '<label for="answer-input">Enter your answer!</label> '
   );
-  const playerAnswer = $('<input id="answer-input" type="text"/> </br>');
+  const playerAnswer = $(
+    '<input id="answer-input" placeholder="Enter here" type="text"/> </br>'
+  );
   const submitAnswer = $(
-    '<input type="button" class ="btn" id="submit" value="Submit answer!"/>'
+    '<input type="button" class ="btn" id="submit-player-card" value="Submit answer!"/>'
   );
   const timer = $('<h5 id="timer" class ="mb-2"></h5>');
   $(".timer-row").html(timer);
+  function dummyListenForNewRound(roundID) {
+    listenForNewRound(roundID);
+  }
 
-  db.collection(gameID)
+  function respondToNoAnswer(doc) {
+    // If no answer is inputted, start listening for new round
+    let roundID = "round" + doc.data()["roundCounter"];
+    // Listen for the new round
+    dummyListenForNewRound(roundID);
+    dummyListenForNewRound = function() {};
+    // DIDN'T ADD THE BELOW CODE AS IT BREAKS THE GAME, ONCE IT'S REMOVED IT'S NOT REPLACED
+    // Clear out the HTML
+    // $(".prompt-row").text("Uh oh - you ran out of time!");
+    // $("#answer-input").remove();
+    // $("#submit-player-card").remove();
+    console.log("YA GOT EMPTIED!!!");
+    console.log("[DEBUG]: Time on 0");
+  }
+  unsubTimeHolderListenerSnapshot = db
+    .collection(gameID)
     .doc("logistics")
     .onSnapshot(function(doc) {
       if (!doc.data()) {
         return;
       }
+
       var time = doc.data()["timeHolder"];
       timer.text(`You have ${time} seconds left`);
+      if (time === 0) {
+        respondToNoAnswer(doc);
+        respondToNoAnswer = function() {};
+      }
     });
+
   $(".input-row").html(labelAnswer);
   gameContainer.append(playerAnswer);
   gameContainer.append(submitAnswer);
   submitAnswer.on("click", () => {
     event.preventDefault();
     let answer = playerAnswer.val();
+    if (unsubPromptListenerSnapshot) {
+      // Kill prompt snapshot listener
+      unsubPromptListenerSnapshot();
+      // Kill timeHolder snapshot listener
+      unsubTimeHolderListenerSnapshot();
+    }
     if (answer === "") {
       gameContainer.text("No answer");
     }
+
     //send answer to the firestore
     let data = {};
     data[nickname] = answer;
@@ -275,8 +326,11 @@ function runGameAsPlayer(nickname, roundID) {
     listenForNewRound(roundID);
   });
 }
+
+let unsubListenForNewRound;
 function listenForNewRound(roundID) {
-  db.collection(gameID)
+  unsubListenForNewRound = db
+    .collection(gameID)
     .doc(roundID)
     .onSnapshot(function(doc) {
       if (!doc.data()) {
@@ -289,7 +343,8 @@ function listenForNewRound(roundID) {
       console.log("[DEBUG] listenForNewRound :: gameID: ", gameID);
       console.log("[DEBUG] listenForNewRound :: roundID: ", roundID);
       if (doc.data()["winningResponse"]) {
-        instantiateRound();
+        showRoundSummaryScreen(roundID);
+        setTimeout(instantiateRound, 3000);
       }
     });
 }
@@ -325,22 +380,8 @@ function setRandomPrompt(roundID) {
     let randomCard =
       cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"][0];
     if (randomCard === "") {
-      console.log("[DEBUG] stepped into if statement");
-      $.ajax({
-        url: queryURL,
-        method: "GET"
-      }).then(function(response) {
-        cardsArray = response.calls;
-        randomCard =
-          cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"][0];
-        let cardData = {};
-        cardData["prompt"] = randomCard;
-        writeDataMerge(gameID, roundID, cardData);
-        $(".container").html("");
-        $(".container").html(
-          `<p class = "judge-countdown-holder"> Time Remaining: </p><p class = 'judge-prompt'>${randomCard}</p>`
-        );
-      });
+      setRandomPrompt(roundID);
+      return;
     }
     console.log("[DEBUG] randomCard: " + randomCard);
     let cardData = {};
@@ -348,7 +389,11 @@ function setRandomPrompt(roundID) {
     writeDataMerge(gameID, roundID, cardData);
     $(".container").html("");
     $(".container").html(
-      `<p class = "judge-countdown-holder"> Time Remaining: </p><p class = 'judge-prompt'>${randomCard}</p>`
+      `<div class="card" style="width: 18rem;">
+      <div class="card-body">
+      <p class = 'judge-prompt'>${randomCard}</p><p class = "judge-countdown-holder"> Time Remaining: </p>
+      </div>
+    </div>`
     );
     countDown(roundID);
   });
@@ -356,9 +401,10 @@ function setRandomPrompt(roundID) {
 
 // Function for counting down from 40 seconds
 function countDown(roundID) {
-  let timeHolder = 15;
+  let timeHolder = centralTimeHolder;
   var counter = setInterval(function() {
     timeHolder--;
+    console.log("[DEBUG]: Time Holder :" + timeHolder);
     writeDataMerge(gameID, "logistics", { timeHolder: timeHolder });
     $(".judge-countdown-holder").text(` Time Remaining: ${timeHolder}`);
     if (timeHolder < 1) {
@@ -382,6 +428,10 @@ function displayCardsToJudge(roundID) {
       let roundResponseObject = doc.data();
       for (let i = 0; i < playersArray.length; i++) {
         if (roundResponseObject[playersArray[i]]) {
+          console.log(
+            "[DEBUG] round response Object" +
+              roundResponseObject[playersArray[i]]
+          );
           let playerResponseElement = `<p class = "player-response-holder text-center py-3 mx-2" value = ${
             playersArray[i]
           }> ${roundResponseObject[playersArray[i]]}</p>`;
@@ -389,16 +439,37 @@ function displayCardsToJudge(roundID) {
           selectionPHolder += playerResponseElement;
         }
       }
-      let roundSelectionElement = `<div class = "round-selection-container"> <h5 class = "show-judge-prompt-holder">${
-        doc.data()["prompt"]
-      }:</h5>${selectionPHolder} </div>`;
+      let roundSelectionElement = `<div class = "round-selection-container"> <div class="card" style="width: 18rem;">
+          <div class="card-body">
+          <p class = "show-judge-prompt-holder">${
+            doc.data()["prompt"]
+          }:</p>${selectionPHolder} 
+          </div></div>`;
 
       $(".container").html(roundSelectionElement);
       // Placing the click listener here because it must occur sequentially once the objects have actually been added to the HTML
+      noAnswers(roundID);
       listenForJudgesSelection(roundID);
     });
 }
-
+//function that automatically moves to next prompt if user does not answer question
+function noAnswers(roundID) {
+  db.collection(gameID)
+    .doc(roundID)
+    .get()
+    .then(function(doc) {
+      let numUnanswered = 0;
+      let roundResponseObject = doc.data();
+      for (let i = 0; i < playersArray.length; i++) {
+        if (!roundResponseObject[playersArray[i]]) {
+          numUnanswered++;
+          if (numUnanswered === playersArray.length) {
+            instantiateRound();
+          }
+        }
+      }
+    });
+}
 function listenForJudgesSelection(roundID) {
   $(".round-selection-container").click(function(event) {
     // Write the winning player to firebase
@@ -421,9 +492,10 @@ function listenForJudgesSelection(roundID) {
         writeDataMerge(gameID, "logistics", roundCount);
         // Change the judge variable in firebase
         changeJudge(event.target.attributes.value.value);
+        writeDataMerge(gameID, "logistics", { timHolder: centralTimeHolder });
         writeDataMerge(gameID, roundID, winnerAnswer);
-
-        instantiateRound();
+        showRoundSummaryScreen(roundID);
+        setTimeout(instantiateRound, 3000);
       });
   });
 }
@@ -432,4 +504,23 @@ function changeJudge(newJudge) {
   let judgeData = {};
   judgeData["judge"] = newJudge;
   writeDataMerge(gameID, "logistics", judgeData);
+}
+
+function showRoundSummaryScreen(roundID) {
+  $(".container").empty();
+  $(".container")[0].innerHTML += `<div class="card" style="width: 18rem;">
+  <div class="card-body">
+  <div class="row prompt-row d-flex justify-content-center">
+  </div></div><div class="d-flex justify-content-center row timer-row"></div><div class=" d-flex justify-content-center row input-row"></div>`;
+  const gameContainer = $(".container");
+  let winnerInfo = "";
+  db.collection(gameID)
+    .doc(roundID)
+    .get()
+    .then(function(doc) {
+      winnerInfo = `${doc.data()["winningPlayer"]} won with the answer: ${
+        doc.data()["winningResponse"]
+      }`;
+      $(".prompt-row").html(winnerInfo);
+    });
 }
