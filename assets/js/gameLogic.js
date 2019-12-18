@@ -29,7 +29,7 @@ function writeDataMergeWhipped(collection, doc, data) {
 
 $(".container")[0].innerHTML += `
 <div class="col-12 mt-4 mb-4 create-row d-flex justify-content-center">
-<p class = "game-description"> Welcome to <span>Wise-Crack!</span> <br> With this funky game, you and your friends will be given prompts and have to creatively enter your own responses!</p>
+<p class = "game-description"> Welcome to  <span>Wise-Crack!</span> <br> <br>  With this funky game, you and your friends will be given prompts and have to creatively enter your own responses!</p>
 </div>
 <div class="col-12 mt-4 mb-4 create-row d-flex justify-content-center">
   <button type="button" class="btn btn-secondary btn-lg create-game-btn">
@@ -162,8 +162,12 @@ function renderPlayerWaitScreen(inputGameID) {
       if (doc.data().gameStarted === false) {
         console.log(doc.data().gameStarted);
         players = doc.data().players;
+        playerListItems = "";
+        players.forEach(function(player) {
+          playerListItems += `<li class="player-item">${player}</li>`;
+        });
         $(".container").html(
-          `<h5> Waiting for other players to join the game....</h5><p class="waiting-for-players">${players}</p>`
+          `<h5> Please wait for the judge to start the game...</h5><ul class="player-ist">${playerListItems}</ul>`
         );
       } else {
         dummyInstantiate();
@@ -185,9 +189,13 @@ function renderJudgeWaitScreen(inputGameID) {
     .onSnapshot(function(doc) {
       if (doc.data().gameStarted === false) {
         players = doc.data().players;
+        playerListItems = "";
+        players.forEach(function(player) {
+          playerListItems += `<li class="player-item">${player}</li>`;
+        });
         $(".container").html(
           `<p class ="game-id-holder">Game ID: ${gameID}</p>
-        <h5> Waiting for other players to join the game....</h5><p>${players}</p><button type="submit" class="btn btn-primary start-btnn" onclick="instantiateRound()">Start Game</button>`
+        <h5> Waiting for other players to join the game....</h5><ul class="player-list">${playerListItems}</ul><button type="submit" class="btn btn-primary start-btnn" onclick="instantiateRound()">Start Game</button>`
         );
       }
     });
