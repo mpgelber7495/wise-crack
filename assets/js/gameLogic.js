@@ -28,15 +28,15 @@ function writeDataMergeWhipped(collection, doc, data) {
 // create game and start game button
 
 $(".container")[0].innerHTML += `
-<div class="col-12 mt-4 mb-4 create-row d-flex justify-content-center">
+<div class="col-6 mt-4 mb-4 create-row d-flex justify-content-center">
 <p class = "game-description"> Welcome to  <span>Wise-Crack!</span> <br> <br>  With this funky game, you and your friends will be given prompts and have to creatively enter your own responses!</p>
 </div>
-<div class="col-12 mt-4 mb-4 create-row d-flex justify-content-center">
+<div class="col-6 mt-4 mb-4 create-row d-flex justify-content-center">
   <button type="button" class="btn btn-secondary btn-lg create-game-btn">
     Create New Game
   </button>
 </div>
-<div class="col-12 join-row d-flex justify-content-center">
+<div class="col-6 join-row d-flex justify-content-center">
   <button type="button" class="btn btn-secondary btn-lg join-game-btn">
     Join Existing Game
   </button>
