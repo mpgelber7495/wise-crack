@@ -1,5 +1,16 @@
 var db = firebase.firestore();
-let centralTimeHolder = 15;
+let centralTimeHolder = 40;
+let cardsArray;
+var deckId = "G9RHX";
+var queryURL = "https://api.cardcastgame.com/v1/decks/" + deckId + "/cards";
+$.ajax({
+  url: queryURL,
+  method: "GET"
+}).then(function(response) {
+  cardsArray = response.calls;
+  console.log("[DEBUG] API Loaded");
+});
+
 function writeDataMerge(collection, doc, data) {
   console.log("[DEBUG] writeDataMerge ::", data);
   db.collection(collection)
@@ -368,35 +379,26 @@ function runRoundAsJudge(roundID) {
 let unsubAllAnswers;
 function setRandomPrompt(roundID) {
   // API using Card cast, find a deck code and input below https://www.cardcastgame.com/browse?nsfw=1
-  var deckId = "8BQAD";
-  var queryURL = "https://api.cardcastgame.com/v1/decks/" + deckId + "/cards";
-  $.ajax({
-    url: queryURL,
-    method: "GET"
-  }).then(function(response) {
-    let cardsArray = response.calls;
-    let randomCard =
-      cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"][0];
-    if (randomCard === "") {
-      setRandomPrompt(roundID);
-      return;
-    }
-    console.log("[DEBUG] randomCard: " + randomCard);
-    let cardData = {};
-    cardData["prompt"] = randomCard;
-    writeDataMerge(gameID, roundID, cardData);
-    $(".container").html("");
-    $(".container").html(
-      `<div class="card" style="width: 18rem;">
+  let randomCardJSON =
+    cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"];
+  let randomCard = randomCardJSON[0] + "___________" + randomCardJSON[1];
+  if (randomCard === "") {
+    setRandomPrompt(roundID);
+    return;
+  }
+  console.log("[DEBUG] randomCard: " + randomCard);
+  let cardData = {};
+  cardData["prompt"] = randomCard;
+  writeDataMerge(gameID, roundID, cardData);
+  $(".container").html("");
+  $(".container").html(
+    `<div class="card" style="width: 18rem;">
       <div class="card-body">
       <p class = 'judge-prompt'>${randomCard}</p><p class = "judge-countdown-holder"> Time Remaining: </p>
       </div>
     </div>`
-    );
-    countDown(roundID);
-
-    //listens to see if all players have answered
-  });
+  );
+  countDown(roundID);
 }
 
 // Function for counting down from 40 seconds
@@ -463,7 +465,7 @@ function displayCardsToJudge(roundID) {
           <div class="card-body">
           <p class = "show-judge-prompt-holder">${
             doc.data()["prompt"]
-          }:</p>${selectionPHolder} 
+          }</p>${selectionPHolder} 
           </div></div>`;
 
       $(".container").html(roundSelectionElement);
