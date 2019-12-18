@@ -10,7 +10,7 @@ body {
   font-size: 17px;
 }
 
-.col-12 {
+.col-6 {
   padding: 15px;
   margin: -10px auto;
   border-radius: 0;
@@ -35,7 +35,7 @@ h1 {
   margin-top: 15px;
   margin-bottom: 15px;
  
-  font-size: 1.3em;
+  font-size: .9em;
 
   font-weight: bold;
 }
@@ -57,7 +57,7 @@ h1 {
   display: block;
     margin: 0 auto;
     margin-top:10px;
-    padding: 2px;
+    /* padding: 2px; */
     background-color: #262626;
     color: white;
     cursor: pointer;
@@ -73,9 +73,18 @@ h1 {
   color: white;
   background-color: #963333;
 }
-
+.container {
+  padding: 10px;
+  margin-top: 5px;
+  font-size: 1.6em;
+  color: black;
+  font-weight: bold;
+  display: block;
+  margin: 0 auto;
+  text-align: center;
+}
 label {
-  font-size: 1.3em;
+  font-size: .9em;
   text-align: center;
   color: black;
   font-weight: bold;
@@ -83,7 +92,7 @@ label {
 
 .judge-countdown-holder, #timer {
   margin-top: 20px;
-  font-size: 1.3em;
+  font-size: .9em;
   text-align: center;
   color: white;
   font-weight: bold;
@@ -98,14 +107,14 @@ label {
 h5,
 p, .prompt-row {
   margin-top: 15px;
-  font-size: 1.3em;
+  font-size: .9em;
   color: black;
   font-weight: bold;
 }
 
 .judge-prompt, .show-judge-prompt-holder {
   color: white;
-  font-size: 1.3em;
+  font-size: .9em;
   font-weight: bold;
   
 
@@ -117,7 +126,7 @@ p, .prompt-row {
 
  #answer-input {
   margin: auto;
-  padding: 6px;
+  padding: 3px;
   display: block;
   margin: 0 auto;
   margin-top: 30px;
@@ -146,9 +155,7 @@ p {
   color:black;
 }
 
-.container {
-  padding: 10px;
-}
+
 
 .row {
   display: flex;
@@ -170,6 +177,8 @@ p {
 form {
   background-color: white;
   padding: 20px;
+  max-width: 50%;
+  margin: 0 auto;
 }
 
 span {
@@ -194,7 +203,7 @@ span {
     font-size: 10vw;
     margin-bottom: 15px;
   }
-  .col-12 {
+  .col-6 {
     max-width: 80%;
 
   }
