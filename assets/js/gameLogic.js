@@ -70,6 +70,7 @@ $(".container").on("click", ".create-game-btn", function(event) {
       playerCount: 0,
       roundCounter: 1,
       timeHolder: centralTimeHolder,
+
       players: [],
       gameStarted: false
     });
@@ -310,7 +311,6 @@ function runGameAsPlayer(nickname, roundID) {
       if (!doc.data()) {
         return;
       }
-
       var time = doc.data()["timeHolder"];
       timer.text(`You have ${time} seconds left`);
       if (time === 0) {
@@ -361,6 +361,7 @@ function listenForNewRound(roundID) {
       console.log("[DEBUG] listenForNewRound :: roundID: ", roundID);
       if (doc.data()["winningResponse"]) {
         showRoundSummaryScreen(roundID);
+
         setTimeout(instantiateRound, 3000);
       }
     });
@@ -512,7 +513,6 @@ function listenForJudgesSelection(roundID) {
     winnerAnswer["winningResponse"] = event.target.innerText;
 
     // Increase the round counter in firebase
-
     db.collection(gameID)
       .doc("logistics")
       .get()
@@ -523,7 +523,7 @@ function listenForJudgesSelection(roundID) {
         writeDataMerge(gameID, "logistics", roundCount);
         // Change the judge variable in firebase
         changeJudge(event.target.attributes.value.value);
-        writeDataMerge(gameID, "logistics", { timHolder: centralTimeHolder });
+        writeDataMerge(gameID, "logistics", { timeHolder: centralTimeHolder });
         writeDataMerge(gameID, roundID, winnerAnswer);
         showRoundSummaryScreen(roundID);
         setTimeout(instantiateRound, 3000);
@@ -539,19 +539,49 @@ function changeJudge(newJudge) {
 
 function showRoundSummaryScreen(roundID) {
   $(".container").empty();
-  $(".container")[0].innerHTML += `<div class="card" style="width: 18rem;">
-  <div class="card-body">
-  <div class="row prompt-row d-flex justify-content-center">
-  </div></div><div class="d-flex justify-content-center row timer-row"></div><div class=" d-flex justify-content-center row input-row"></div>`;
-  const gameContainer = $(".container");
   let winnerInfo = "";
+  let otherResponses = "";
+  let responseHolder = "";
   db.collection(gameID)
     .doc(roundID)
     .get()
     .then(function(doc) {
+      //display winner logic
       winnerInfo = `${doc.data()["winningPlayer"]} won with the answer: ${
         doc.data()["winningResponse"]
       }`;
-      $(".prompt-row").html(winnerInfo);
+      let roundResponseObject = doc.data();
+      for (let i = 0; i < playersArray.length; i++) {
+        if (roundResponseObject[playersArray[i]]) {
+          otherResponses = `<p class = "player-response-holder text-center py-3 mx-2" value = ${
+            playersArray[i]
+          }> ${roundResponseObject[playersArray[i]]}</p>`;
+
+          responseHolder += otherResponses;
+        }
+      }
+      let reviewScreenElement = `<div class = "round-selection-container"> <div class="card" style="width: 18rem;">
+          <div class="card-body">
+          <p class = "show-judge-prompt-holder">${winnerInfo}
+          </p>${responseHolder} 
+          </div></div>`;
+      $(".container").html(reviewScreenElement);
     });
 }
+
+//display other answers logic
+// for (let i = 0; i < playersArray.length; i++) {
+//   if (doc.data()[playersArray[i]]) {
+//     otherResponses = `<div class="row"><p class = "player-response-holder text-center py-3 mx-2" value = ${
+//       playersArray[i]
+//     }> ${doc.data()[playersArray[i]]}</p></div>`;
+//     responseHolder += otherResponses;
+//   }
+// }
+//   let roundSummaryElement = `<div class = "round-selection-container"><div class="card" style="width: 18rem;">
+// <div class="card-body">
+// <p class = "show-judge-prompt-holder">${winnerInfo}
+// }</p>${responseHolder}
+// </div></div>`;
+//   console.log(roundSummaryElement);
+//   $(".container").html(roundSummaryElement);
