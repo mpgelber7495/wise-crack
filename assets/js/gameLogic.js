@@ -1,5 +1,5 @@
 var db = firebase.firestore();
-let centralTimeHolder = 15;
+let centralTimeHolder = 40;
 let cardsArray;
 var deckId = "G9RHX";
 var queryURL = "https://api.cardcastgame.com/v1/decks/" + deckId + "/cards";
@@ -294,8 +294,6 @@ function runGameAsPlayer(nickname, roundID) {
     // $(".prompt-row").text("Uh oh - you ran out of time!");
     // $("#answer-input").remove();
     // $("#submit-player-card").remove();
-    console.log("YA GOT EMPTIED!!!");
-    console.log("[DEBUG]: Time on 0");
   }
   unsubTimeHolderListenerSnapshot = db
     .collection(gameID)
@@ -378,7 +376,7 @@ function runRoundAsJudge(roundID) {
   setRandomPrompt(roundID);
 }
 // Function for setting the prompt in the database
-
+let unsubAllAnswers;
 function setRandomPrompt(roundID) {
   // API using Card cast, find a deck code and input below https://www.cardcastgame.com/browse?nsfw=1
   let randomCardJSON =
@@ -411,6 +409,7 @@ function countDown(roundID) {
     console.log("[DEBUG]: Time Holder :" + timeHolder);
     writeDataMerge(gameID, "logistics", { timeHolder: timeHolder });
     $(".judge-countdown-holder").text(` Time Remaining: ${timeHolder}`);
+    // allAnswers(roundID);
     if (timeHolder < 1) {
       clearInterval(counter);
       displayCardsToJudge(roundID);
@@ -421,9 +420,28 @@ function countDown(roundID) {
       // Set the new judge as the winner of previous round
     }
   }, 1000);
+  unsubAllAnswers = db
+    .collection(gameID)
+    .doc(roundID)
+    .onSnapshot(function(doc) {
+      let numAnswered = 0;
+      let roundResponseObject = doc.data();
+      for (let i = 0; i < playersArray.length; i++) {
+        if (roundResponseObject[playersArray[i]]) {
+          numAnswered++;
+          if (numAnswered === playersArray.length - 1) {
+            displayCardsToJudge(roundID);
+            clearInterval(counter);
+          }
+        }
+      }
+    });
 }
 
 function displayCardsToJudge(roundID) {
+  if (unsubAllAnswers) {
+    unsubAllAnswers();
+  }
   db.collection(gameID)
     .doc(roundID)
     .get()
@@ -474,6 +492,7 @@ function noAnswers(roundID) {
       }
     });
 }
+
 function listenForJudgesSelection(roundID) {
   $(".round-selection-container").click(function(event) {
     // Write the winning player to firebase
