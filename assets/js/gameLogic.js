@@ -343,7 +343,8 @@ function listenForNewRound(roundID) {
       console.log("[DEBUG] listenForNewRound :: gameID: ", gameID);
       console.log("[DEBUG] listenForNewRound :: roundID: ", roundID);
       if (doc.data()["winningResponse"]) {
-        instantiateRound();
+        showRoundSummaryScreen(roundID);
+        setTimeout(instantiateRound, 3000);
       }
     });
 }
@@ -493,7 +494,8 @@ function listenForJudgesSelection(roundID) {
         changeJudge(event.target.attributes.value.value);
         writeDataMerge(gameID, "logistics", { timHolder: centralTimeHolder });
         writeDataMerge(gameID, roundID, winnerAnswer);
-        instantiateRound();
+        showRoundSummaryScreen(roundID);
+        setTimeout(instantiateRound, 3000);
       });
   });
 }
@@ -502,4 +504,23 @@ function changeJudge(newJudge) {
   let judgeData = {};
   judgeData["judge"] = newJudge;
   writeDataMerge(gameID, "logistics", judgeData);
+}
+
+function showRoundSummaryScreen(roundID) {
+  $(".container").empty();
+  $(".container")[0].innerHTML += `<div class="card" style="width: 18rem;">
+  <div class="card-body">
+  <div class="row prompt-row d-flex justify-content-center">
+  </div></div><div class="d-flex justify-content-center row timer-row"></div><div class=" d-flex justify-content-center row input-row"></div>`;
+  const gameContainer = $(".container");
+  let winnerInfo = "";
+  db.collection(gameID)
+    .doc(roundID)
+    .get()
+    .then(function(doc) {
+      winnerInfo = `${doc.data()["winningPlayer"]} won with the answer: ${
+        doc.data()["winningResponse"]
+      }`;
+      $(".prompt-row").html(winnerInfo);
+    });
 }
