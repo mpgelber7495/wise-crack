@@ -36,11 +36,21 @@ $(".container")[0].innerHTML += `
     Create New Game
   </button>
 </div>
-<div class="col-6 join-row d-flex justify-content-center">
+<div class="col-6 mb-4 join-row d-flex justify-content-center">
   <button type="button" class="btn btn-secondary btn-lg join-game-btn">
     Join Existing Game
   </button>
 </div>`;
+
+if (window.localStorage.getItem("localNickname")) {
+  $(
+    ".container"
+  )[0].innerHTML += `<div class="col-6 join-row d-flex justify-content-center">
+  <button type="button" class="btn btn-secondary btn-lg re-join-game-btn">
+    Re-join previous game
+  </button>
+</div>`;
+}
 // generates random number ID
 var gameID;
 var inputGameID;
@@ -119,6 +129,11 @@ $(".container").on("keyup", "#nicknameInput", function() {
   $(this).val(text.replace(/[^A-Za-z0-9]/g, ""));
 });
 
+// Rejoin existing game button
+$(".container").on("click", ".re-join-game-btn", function(event) {
+  checkForActiveLocalStorageGame();
+});
+
 // create-join button logic (PLAYER WHO CREATES GAME AND BECOMES JUDGE)
 $(".container").on("click", ".ready-btn-create", function(event) {
   event.preventDefault();
@@ -142,6 +157,8 @@ function pushPlayersToDB(gameID, nicknameInput) {
     .update({
       players: firebase.firestore.FieldValue.arrayUnion(nicknameInput)
     });
+  /// Setting local storage
+  setLocalStorageVariables(nicknameInput, gameID);
 }
 let unsubPlayerWaitScreen;
 //Wait Screen Function
@@ -173,6 +190,34 @@ function renderPlayerWaitScreen(inputGameID) {
       } else {
         dummyInstantiate();
         dummyInstantiate = function() {};
+      }
+    });
+}
+
+function setLocalStorageVariables(nickname, gameID) {
+  window.localStorage.setItem("localNickname", nickname);
+  window.localStorage.setItem("localGameID", gameID);
+}
+
+function checkForActiveLocalStorageGame() {
+  let localGameID = window.localStorage.getItem("localGameID");
+  let localNickname = window.localStorage.getItem("localNickname");
+  console.log("[DEBUG] checkForActiveLocalStorageGame " + localGameID);
+  console.log("[DEBUG] checkForActiveLocalStorageGame " + localNickname);
+  db.collection(localGameID)
+    .doc("logistics")
+    .get()
+    .then(function(doc) {
+      let logisticsObject = doc.data();
+      console.log(
+        "[DEBUG] checkForActiveLocalStorageGame gameStarted || " +
+          logisticsObject["gameStarted"]
+      );
+      if (logisticsObject["gameStarted"] === "true") {
+        console.log("[DEBUG] checkForActiveLocalStorageGame instantRound");
+        nickname = localNickname;
+        gameID = localGameID;
+        instantiateRound();
       }
     });
 }
@@ -457,15 +502,20 @@ function displayCardsToJudge(roundID) {
     .then(function(doc) {
       let selectionPHolder = "";
       let roundResponseObject = doc.data();
-      for (let i = 0; i < playersArray.length; i++) {
-        if (roundResponseObject[playersArray[i]]) {
+      // Create a randomly ordered version of the players array
+      let randomizedPlayerArray = playersArray;
+      randomizedPlayerArray.sort(function(a, b) {
+        return 0.5 - Math.random();
+      });
+      for (let i = 0; i < randomizedPlayerArray.length; i++) {
+        if (roundResponseObject[randomizedPlayerArray[i]]) {
           console.log(
             "[DEBUG] round response Object" +
-              roundResponseObject[playersArray[i]]
+              roundResponseObject[randomizedPlayerArray[i]]
           );
           let playerResponseElement = `<p class = "player-response-holder text-center py-3 mx-2" value = ${
-            playersArray[i]
-          }> ${roundResponseObject[playersArray[i]]}</p>`;
+            randomizedPlayerArray[i]
+          }> ${roundResponseObject[randomizedPlayerArray[i]]}</p>`;
 
           selectionPHolder += playerResponseElement;
         }
@@ -526,7 +576,7 @@ function listenForJudgesSelection(roundID) {
         writeDataMerge(gameID, "logistics", { timeHolder: centralTimeHolder });
         writeDataMerge(gameID, roundID, winnerAnswer);
         showRoundSummaryScreen(roundID);
-        setTimeout(instantiateRound, 3000);
+        setTimeout(instantiateRound, 5000);
       });
   });
 }
