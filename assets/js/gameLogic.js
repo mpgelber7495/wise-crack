@@ -435,7 +435,18 @@ function setRandomPrompt(roundID) {
   // API using Card cast, find a deck code and input below https://www.cardcastgame.com/browse?nsfw=1
   let randomCardJSON =
     cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"];
-  let randomCard = randomCardJSON[0] + "___________" + randomCardJSON[1];
+  // Below logic helps to account for cards that require multi-part answers
+  let randomCard;
+  if (randomCardJSON.length <= 2) {
+    randomCard = randomCardJSON[0] + "___________" + randomCardJSON[1];
+  } else if (randomCardJSON.length > 2) {
+    randomCard =
+      randomCardJSON[0] +
+      "___________" +
+      randomCardJSON[1] +
+      "___________" +
+      randomCardJSON[2];
+  }
   if (randomCard === "") {
     setRandomPrompt(roundID);
     return;
