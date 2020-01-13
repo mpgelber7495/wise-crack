@@ -80,6 +80,7 @@ $(".container").on("click", ".create-game-btn", function(event) {
       playerCount: 0,
       roundCounter: 1,
       timeHolder: centralTimeHolder,
+      deckID: "G9RHX",
 
       players: [],
       gameStarted: false
@@ -241,7 +242,38 @@ function renderJudgeWaitScreen(inputGameID) {
         });
         $(".container").html(
           `<p class ="game-id-holder">Game ID: ${gameID}</p>
-        <h5> Waiting for other players to join the game....</h5><ul class="player-list">${playerListItems}</ul><button type="submit" class="btn btn-primary start-btnn" onclick="instantiateRound()">Start Game</button>`
+        <h5> Waiting for other players to join the game....</h5><ul class="player-list">${playerListItems}</ul><button type="submit" class="btn btn-primary start-btnn" onclick="instantiateRound()">Start Game</button> </br>
+        <button type="submit" class="btn mt-4 btn-primary start-btnn" onclick="customDeckSelection('${gameID}')">Select a Custom deck (optional)</button>`
+        );
+      }
+    });
+}
+
+// If the judge player selects to enter a custom deck:
+function customDeckSelection(inputGameID) {
+  $(".container").html("");
+  let players;
+  unsubJudgeWaitScreen = db
+    .collection(inputGameID)
+    .doc("logistics")
+    .onSnapshot(function(doc) {
+      if (doc.data().gameStarted === false) {
+        players = doc.data().players;
+        playerListItems = "";
+        players.forEach(function(player) {
+          playerListItems += `<li class="player-item">${player}</li>`;
+        });
+        $(".container").html(
+          `<p class ="game-id-holder">Game ID: ${gameID}</p>
+      <h5> Waiting for other players to join the game....</h5><ul class="player-list">${playerListItems}</ul><button type="submit" class="btn btn-primary start-btnn" onclick="instantiateRound()">Start Game</button> </br>
+
+        <label class ="mt-3"for="deck-input">Deck ID from <a href="https://www.cardcastgame.com/browse" target="_blank"> CardCast<a></label>  </br>
+      
+      
+        <input id="deck-input" placeholder="G9RHX" type="text"/> </br>
+      
+      
+        <input type="button" class ="btn" id="deck-selection-button" value="Set Deck"/>`
         );
       }
     });

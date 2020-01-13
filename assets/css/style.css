@@ -27,15 +27,15 @@ h1 {
   font-size: 4vw;
   color: black;
   text-shadow: 3px 2px 4px darkgrey;
-  font-family: 'Sonsie One', cursive;
+  font-family: "Sonsie One", cursive;
 }
 
 .player-item {
   color: black;
   margin-top: 15px;
   margin-bottom: 15px;
- 
-  font-size: .9em;
+
+  font-size: 0.9em;
 
   font-weight: bold;
 }
@@ -52,21 +52,20 @@ h1 {
   cursor: pointer;
 }
 
-
 #submit-player-card {
   display: block;
-    margin: 0 auto;
-    margin-top:10px;
-    /* padding: 2px; */
-    background-color: #262626;
-    color: white;
-    cursor: pointer;
-  }
+  margin: 0 auto;
+  margin-top: 10px;
+  /* padding: 2px; */
+  background-color: #262626;
+  color: white;
+  cursor: pointer;
+}
 
-  #submit-player-card:hover {
-    color: white;
-    background-color: #963333;
-    }
+#submit-player-card:hover {
+  color: white;
+  background-color: #963333;
+}
 
 .btn:hover,
 #submit:hover {
@@ -84,15 +83,16 @@ h1 {
   text-align: center;
 }
 label {
-  font-size: .9em;
+  font-size: 0.9em;
   text-align: center;
   color: black;
   font-weight: bold;
 }
 
-.judge-countdown-holder, #timer {
+.judge-countdown-holder,
+#timer {
   margin-top: 20px;
-  font-size: .9em;
+  font-size: 0.9em;
   text-align: center;
   color: white;
   font-weight: bold;
@@ -105,26 +105,22 @@ label {
 
 .game-id-holder,
 h5,
-p, .prompt-row {
+p,
+.prompt-row {
   margin-top: 15px;
-  font-size: .9em;
+  font-size: 0.9em;
   color: black;
   font-weight: bold;
 }
 
-.judge-prompt, .show-judge-prompt-holder {
+.judge-prompt,
+.show-judge-prompt-holder {
   color: white;
-  font-size: .9em;
+  font-size: 0.9em;
   font-weight: bold;
-  
-
-
-
 }
 
-
-
- #answer-input {
+#answer-input {
   margin: auto;
   padding: 3px;
   display: block;
@@ -144,7 +140,7 @@ label {
 #nicknameInput,
 #gameIDInput {
   border: solid 1px #262626;
-  color:black;
+  color: black;
   font-size: 15px;
 }
 
@@ -152,10 +148,8 @@ label {
 p {
   margin: 10px 0;
   padding: 10px 0;
-  color:black;
+  color: black;
 }
-
-
 
 .row {
   display: flex;
@@ -186,8 +180,6 @@ span {
   color: black;
 }
 
-
-
 .card {
   padding: 5px;
   margin: auto;
@@ -205,18 +197,23 @@ span {
   }
   .col-6 {
     max-width: 80%;
-
   }
 
   form {
-    background-color: rgb(0,0,0,);
+    background-color: rgb(0, 0, 0);
     padding: 20px;
     max-width: 80%;
     margin: 0 auto;
   }
 }
 
-
-
-
-
+/* Deck selection button */
+#deck-selection-button {
+  display: block;
+  margin: 0 auto;
+  margin-top: 10px;
+  /* padding: 2px; */
+  background-color: #262626;
+  color: white;
+  cursor: pointer;
+}
