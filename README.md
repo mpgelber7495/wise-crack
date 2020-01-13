@@ -7,9 +7,9 @@ Wise-Crack is a fun variation of cards against humanity that allows players to e
 ## How to play
 
 1. Requirements:
-  - 3 or more players (in the same room)
-  - Each player must have their own device
-  - Creativity
+    - 3 or more players (in the same room)
+    - Each player must have their own device
+    - Creativity
 2. Each player naviagtes to [WiseCrackFun.com](http://www.wisecrackfun.com).
 3. One player clicks **Create New Game** and recieves their case-sensitive Game ID (i.e. **j5**).
 4. All of the other players click **Join Existing Game** and enter the Game ID recieved in step 3.
