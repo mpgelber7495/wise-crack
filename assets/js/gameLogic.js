@@ -81,7 +81,6 @@ $(".container").on("click", ".create-game-btn", function(event) {
       roundCounter: 1,
       timeHolder: centralTimeHolder,
       deckID: "G9RHX",
-
       players: [],
       gameStarted: false
     });
@@ -275,8 +274,20 @@ function customDeckSelection(inputGameID) {
       
         <input type="button" class ="btn" id="deck-selection-button" value="Set Deck"/>`
         );
+        console.log("DEBUG snapshot functions are deadly");
       }
     });
+  $(".container").on("click", "#deck-selection-button", function(event) {
+    event.preventDefault();
+    let deckIDtoPushToAPI = $("#deck-input").val();
+    writeDataMerge(gameID, "logistics", { deckID: deckIDtoPushToAPI });
+    $("#deck-selection-button").remove();
+    $("#deck-input").remove();
+    console.log("DEBUG Removing items");
+    if (unsubJudgeWaitScreen) {
+      unsubJudgeWaitScreen();
+    }
+  });
 }
 // ------------------------------------------------
 // TO-DO: Instantiate Round
