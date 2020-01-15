@@ -1,7 +1,7 @@
 var db = firebase.firestore();
 let centralTimeHolder = 40;
 let cardsArray;
-var deckId = "G9RHX";
+var deckId = "6QP3X";
 var queryURL = "https://api.cardcastgame.com/v1/decks/" + deckId + "/cards";
 $.ajax({
   url: queryURL,
