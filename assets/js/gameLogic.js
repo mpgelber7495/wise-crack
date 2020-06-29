@@ -3,26 +3,23 @@ let centralTimeHolder = 40;
 let cardsArray;
 var deckId = "G9RHX";
 var queryURL = "https://api.cardcastgame.com/v1/decks/" + deckId + "/cards";
-$.ajax({
-  url: queryURL,
-  method: "GET"
-}).then(function(response) {
-  cardsArray = response.calls;
-  console.log("[DEBUG] API Loaded");
-});
+// $.ajax({
+//   url: queryURL,
+//   method: "GET"
+// }).then(function (response) {
+//   cardsArray = response.calls;
+//   console.log("[DEBUG] API Loaded");
+// });
 
+cardsArray = cards;
 function writeDataMerge(collection, doc, data) {
   console.log("[DEBUG] writeDataMerge ::", data);
-  db.collection(collection)
-    .doc(doc)
-    .set(data, { merge: true });
+  db.collection(collection).doc(doc).set(data, { merge: true });
 }
 
 function writeDataMergeWhipped(collection, doc, data) {
   console.log("[DEBUG] writeDataMerge ::", data);
-  db.collection(collection)
-    .doc(doc)
-    .set(data, { merge: true });
+  db.collection(collection).doc(doc).set(data, { merge: true });
 }
 
 // create game and start game button
@@ -59,10 +56,8 @@ let playersArray = [];
 let nickname;
 
 // create game button logic
-$(".container").on("click", ".create-game-btn", function(event) {
-  gameID = Math.random()
-    .toString(36)
-    .substr(2, 2);
+$(".container").on("click", ".create-game-btn", function (event) {
+  gameID = Math.random().toString(36).substr(2, 2);
   console.log(gameID);
   $(".container").html("");
   $(".container")[0].innerHTML += `<form>
@@ -73,21 +68,19 @@ $(".container").on("click", ".create-game-btn", function(event) {
   </div>
   <button type="submit" class="btn btn-primary ready-btn-create">Ready</button>
 </form>`;
-  db.collection(`${gameID}`)
-    .doc("logistics")
-    .set({
-      judge: null,
-      playerCount: 0,
-      roundCounter: 1,
-      timeHolder: centralTimeHolder,
+  db.collection(`${gameID}`).doc("logistics").set({
+    judge: null,
+    playerCount: 0,
+    roundCounter: 1,
+    timeHolder: centralTimeHolder,
 
-      players: [],
-      gameStarted: false
-    });
+    players: [],
+    gameStarted: false
+  });
 });
 
 // join game button logic
-$(".container").on("click", ".join-game-btn", function(event) {
+$(".container").on("click", ".join-game-btn", function (event) {
   $(".container").html("");
   $(".container")[0].innerHTML += `<form>
   <div class="form-group mt-4 mb-4">
@@ -101,22 +94,18 @@ $(".container").on("click", ".join-game-btn", function(event) {
 });
 var unsubPlayerJoin;
 // ready join button logic (PERSON WHO JOINES GAME)
-$(".container").on("click", ".ready-btn-join", function(event) {
+$(".container").on("click", ".ready-btn-join", function (event) {
   event.preventDefault();
-  inputGameID = $("#gameIDInput")
-    .val()
-    .trim();
+  inputGameID = $("#gameIDInput").val().trim();
   console.log(inputGameID);
-  let nicknameInput = $("#nicknameInput")
-    .val()
-    .trim();
+  let nicknameInput = $("#nicknameInput").val().trim();
   nickname = nicknameInput;
   gameID = inputGameID;
   if (nicknameInput && inputGameID !== "") {
     unsubPlayerJoin = db
       .collection(inputGameID)
       .doc("logistics")
-      .onSnapshot(function(doc) {
+      .onSnapshot(function (doc) {
         if (doc.data().roundCounter === 1) {
           pushPlayersToDB(inputGameID, nicknameInput);
           renderPlayerWaitScreen(inputGameID);
@@ -124,22 +113,20 @@ $(".container").on("click", ".ready-btn-join", function(event) {
       });
   }
 });
-$(".container").on("keyup", "#nicknameInput", function() {
+$(".container").on("keyup", "#nicknameInput", function () {
   var text = $(this).val();
   $(this).val(text.replace(/[^A-Za-z0-9]/g, ""));
 });
 
 // Rejoin existing game button
-$(".container").on("click", ".re-join-game-btn", function(event) {
+$(".container").on("click", ".re-join-game-btn", function (event) {
   checkForActiveLocalStorageGame();
 });
 
 // create-join button logic (PLAYER WHO CREATES GAME AND BECOMES JUDGE)
-$(".container").on("click", ".ready-btn-create", function(event) {
+$(".container").on("click", ".ready-btn-create", function (event) {
   event.preventDefault();
-  let nicknameInput = $("#nicknameInput")
-    .val()
-    .trim();
+  let nicknameInput = $("#nicknameInput").val().trim();
   nickname = nicknameInput;
   if (nicknameInput !== "") {
     let pushJudgeData = {};
@@ -169,7 +156,7 @@ function renderPlayerWaitScreen(inputGameID) {
   unsubPlayerWaitScreen = db
     .collection(inputGameID)
     .doc("logistics")
-    .onSnapshot(function(doc) {
+    .onSnapshot(function (doc) {
       if (!doc.data()) {
         return;
       }
@@ -181,7 +168,7 @@ function renderPlayerWaitScreen(inputGameID) {
         console.log(doc.data().gameStarted);
         players = doc.data().players;
         playerListItems = "";
-        players.forEach(function(player) {
+        players.forEach(function (player) {
           playerListItems += `<li class="player-item">${player}</li>`;
         });
         $(".container").html(
@@ -189,7 +176,7 @@ function renderPlayerWaitScreen(inputGameID) {
         );
       } else {
         dummyInstantiate();
-        dummyInstantiate = function() {};
+        dummyInstantiate = function () {};
       }
     });
 }
@@ -207,7 +194,7 @@ function checkForActiveLocalStorageGame() {
   db.collection(localGameID)
     .doc("logistics")
     .get()
-    .then(function(doc) {
+    .then(function (doc) {
       let logisticsObject = doc.data();
       console.log(
         "[DEBUG] checkForActiveLocalStorageGame gameStarted || " +
@@ -232,11 +219,11 @@ function renderJudgeWaitScreen(inputGameID) {
   unsubJudgeWaitScreen = db
     .collection(inputGameID)
     .doc("logistics")
-    .onSnapshot(function(doc) {
+    .onSnapshot(function (doc) {
       if (doc.data().gameStarted === false) {
         players = doc.data().players;
         playerListItems = "";
-        players.forEach(function(player) {
+        players.forEach(function (player) {
           playerListItems += `<li class="player-item">${player}</li>`;
         });
         $(".container").html(
@@ -267,7 +254,7 @@ function instantiateRound() {
   db.collection(gameID)
     .doc("logistics")
     .get()
-    .then(function(doc) {
+    .then(function (doc) {
       let judge = doc.data()["judge"];
       let roundCount = doc.data()["roundCounter"];
       // console.log("[DEBUG]: instantiate Round roundCount: " + roundCount);
@@ -281,9 +268,7 @@ function instantiateRound() {
         let data = {};
         data["winningPlayer"] = "null";
         console.log("[DEBUG] Judge newRoundID: " + newRoundID);
-        db.collection(gameID)
-          .doc(newRoundID)
-          .set(data);
+        db.collection(gameID).doc(newRoundID).set(data);
         runRoundAsJudge(newRoundID);
       } else {
         runGameAsPlayer(nickname, newRoundID);
@@ -313,7 +298,7 @@ function runGameAsPlayer(nickname, roundID) {
   unsubPromptListenerSnapshot = db
     .collection(gameID)
     .doc(roundID)
-    .onSnapshot(function(doc) {
+    .onSnapshot(function (doc) {
       if (!doc.data()) {
         return;
       }
@@ -342,7 +327,7 @@ function runGameAsPlayer(nickname, roundID) {
     let roundID = "round" + doc.data()["roundCounter"];
     // Listen for the new round
     dummyListenForNewRound(roundID);
-    dummyListenForNewRound = function() {};
+    dummyListenForNewRound = function () {};
     // DIDN'T ADD THE BELOW CODE AS IT BREAKS THE GAME, ONCE IT'S REMOVED IT'S NOT REPLACED
     // Clear out the HTML
     // $(".prompt-row").text("Uh oh - you ran out of time!");
@@ -352,7 +337,7 @@ function runGameAsPlayer(nickname, roundID) {
   unsubTimeHolderListenerSnapshot = db
     .collection(gameID)
     .doc("logistics")
-    .onSnapshot(function(doc) {
+    .onSnapshot(function (doc) {
       if (!doc.data()) {
         return;
       }
@@ -360,7 +345,7 @@ function runGameAsPlayer(nickname, roundID) {
       timer.text(`You have ${time} seconds left`);
       if (time === 0) {
         respondToNoAnswer(doc);
-        respondToNoAnswer = function() {};
+        respondToNoAnswer = function () {};
       }
     });
 
@@ -394,7 +379,7 @@ function listenForNewRound(roundID) {
   unsubListenForNewRound = db
     .collection(gameID)
     .doc(roundID)
-    .onSnapshot(function(doc) {
+    .onSnapshot(function (doc) {
       if (!doc.data()) {
         return;
       }
@@ -421,7 +406,7 @@ function listenForNewRound(roundID) {
 function definePlayersArray() {
   db.collection(gameID)
     .doc("logistics")
-    .onSnapshot(function(doc) {
+    .onSnapshot(function (doc) {
       playersArray = doc.data()["players"];
     });
 }
@@ -433,24 +418,26 @@ function runRoundAsJudge(roundID) {
 let unsubAllAnswers;
 function setRandomPrompt(roundID) {
   // API using Card cast, find a deck code and input below https://www.cardcastgame.com/browse?nsfw=1
+  console.log("cardsArray", cardsArray);
   let randomCardJSON =
     cardsArray[Math.floor(Math.random() * cardsArray.length)]["text"];
+  console.log("[DEBUG] RandomCard: ", randomCardJSON);
   // Below logic helps to account for cards that require multi-part answers
-  let randomCard;
-  if (randomCardJSON.length <= 2) {
-    randomCard = randomCardJSON[0] + "___________" + randomCardJSON[1];
-  } else if (randomCardJSON.length > 2) {
-    randomCard =
-      randomCardJSON[0] +
-      "___________" +
-      randomCardJSON[1] +
-      "___________" +
-      randomCardJSON[2];
-  }
-  if (randomCard === "") {
-    setRandomPrompt(roundID);
-    return;
-  }
+  let randomCard = randomCardJSON.replace("_", "_________");
+  // if (randomCardJSON.length <= 2) {
+  //   randomCard = randomCardJSON[0] + "___________" + randomCardJSON[1];
+  // } else if (randomCardJSON.length > 2) {
+  //   randomCard =
+  //     randomCardJSON[0] +
+  //     "___________" +
+  //     randomCardJSON[1] +
+  //     "___________" +
+  //     randomCardJSON[2];
+  // }
+  // if (randomCard === "") {
+  //   setRandomPrompt(roundID);
+  //   return;
+  // }
   console.log("[DEBUG] randomCard: " + randomCard);
   let cardData = {};
   cardData["prompt"] = randomCard;
@@ -469,7 +456,7 @@ function setRandomPrompt(roundID) {
 // Function for counting down from 40 seconds
 function countDown(roundID) {
   let timeHolder = centralTimeHolder;
-  var counter = setInterval(function() {
+  var counter = setInterval(function () {
     timeHolder--;
     console.log("[DEBUG]: Time Holder :" + timeHolder);
     writeDataMerge(gameID, "logistics", { timeHolder: timeHolder });
@@ -488,7 +475,7 @@ function countDown(roundID) {
   unsubAllAnswers = db
     .collection(gameID)
     .doc(roundID)
-    .onSnapshot(function(doc) {
+    .onSnapshot(function (doc) {
       let numAnswered = 0;
       let roundResponseObject = doc.data();
       for (let i = 0; i < playersArray.length; i++) {
@@ -510,12 +497,12 @@ function displayCardsToJudge(roundID) {
   db.collection(gameID)
     .doc(roundID)
     .get()
-    .then(function(doc) {
+    .then(function (doc) {
       let selectionPHolder = "";
       let roundResponseObject = doc.data();
       // Create a randomly ordered version of the players array
       let randomizedPlayerArray = playersArray;
-      randomizedPlayerArray.sort(function(a, b) {
+      randomizedPlayerArray.sort(function (a, b) {
         return 0.5 - Math.random();
       });
       for (let i = 0; i < randomizedPlayerArray.length; i++) {
@@ -549,7 +536,7 @@ function noAnswers(roundID) {
   db.collection(gameID)
     .doc(roundID)
     .get()
-    .then(function(doc) {
+    .then(function (doc) {
       let numUnanswered = 0;
       let roundResponseObject = doc.data();
       for (let i = 0; i < playersArray.length; i++) {
@@ -564,7 +551,7 @@ function noAnswers(roundID) {
 }
 
 function listenForJudgesSelection(roundID) {
-  $(".round-selection-container").click(function(event) {
+  $(".round-selection-container").click(function (event) {
     // Write the winning player to firebase
     let winnerName = {};
     winnerName["winningPlayer"] = event.target.attributes.value.value;
@@ -577,7 +564,7 @@ function listenForJudgesSelection(roundID) {
     db.collection(gameID)
       .doc("logistics")
       .get()
-      .then(function(doc) {
+      .then(function (doc) {
         let roundCountHolder = doc.data()["roundCounter"];
         let roundCount = {};
         roundCount["roundCounter"] = roundCountHolder + 1;
@@ -606,7 +593,7 @@ function showRoundSummaryScreen(roundID) {
   db.collection(gameID)
     .doc(roundID)
     .get()
-    .then(function(doc) {
+    .then(function (doc) {
       //display winner logic
       winnerInfo = `${doc.data()["winningPlayer"]} won with the answer: ${
         doc.data()["winningResponse"]
